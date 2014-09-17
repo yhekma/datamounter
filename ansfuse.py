@@ -23,17 +23,15 @@ class AnsFS(Operations):
             dir2 = splitted_path[3] # NOQA
             s = stat.S_IFREG | 0444
             size = len(self.struct[host][dir1][dir2])
-        except IndexError:
+        except:
             try:
                 dir1 = splitted_path[2]
                 if type(self.struct[host][dir1]) == dict:
                     s = stat.S_IFDIR | 0555
-                elif type(self.struct[host][dir1]) == list:
-                    s = stat.S_IFDIR | 0555
                 else:
                     s = stat.S_IFREG | 0444
                     size = len(self.struct[host][dir1])
-            except IndexError:
+            except:
                 s = stat.S_IFDIR | 0555
 
         ret_dict = {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
@@ -53,11 +51,11 @@ class AnsFS(Operations):
                 dir1 = splitted_path[2]
                 dir2 = splitted_path[3]
                 dirents.extend(self.struct[host][dir1][dir2])
-            except IndexError:
+            except:
                 try:
                     dir1 = splitted_path[2]
                     dirents.extend(self.struct[host][dir1])
-                except IndexError:
+                except:
                     dirents.extend(self.struct[host])
 
         # elif len(splitted_path) == 2:

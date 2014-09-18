@@ -7,76 +7,76 @@ from fuse import FUSE, Operations
 
 class AnsFS(Operations):
     def __init__(self, pklfile):
-        f = open(pklfile, 'rb')
-        self.struct = cPickle.load(f)
-        f.close()
+        self.struct = self._load_struct(pklfile)
         self.fd = 0
 
-    def getattr(self, path, fh=None):
+    def _load_struct(self, filename):
+        f = open(filename, 'rb')
+        struct = cPickle.load(f)
+        f.close()
+        return struct
+
+    def _flatten_struct(self, struct):
+        pass
+
+    def _split_path(self, path):
         splitted_path = path.split('/')
+        while '' in splitted_path:
+            splitted_path.remove('')
+
+        return splitted_path
+
+    def getattr(self, path, fh=None):
+        splitted_path = self._split_path(path)
         s = ''
         size = 1
-        host = splitted_path[1]
 
         try:
-            dir1 = splitted_path[2]
-            dir2 = splitted_path[3] # NOQA
-            s = stat.S_IFREG | 0444
-            size = len(self.struct[host][dir1][dir2])
+            host = splitted_path[0]
         except:
-            try:
-                dir1 = splitted_path[2]
-                if type(self.struct[host][dir1]) == dict:
-                    s = stat.S_IFDIR | 0555
-                else:
-                    s = stat.S_IFREG | 0444
-                    size = len(self.struct[host][dir1])
-            except:
+            host = ''
+            s = stat.S_IFDIR | 0555
+
+        if len(splitted_path) <= 1:
+            s = stat.S_IFDIR | 0555
+        else:
+            val = self.struct[host][splitted_path[1]]
+            if type(val) == dict:
                 s = stat.S_IFDIR | 0555
+            else:
+                size = len(str(val))
+                s = stat.S_IFREG | 0444
 
         ret_dict = {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
         return ret_dict
 
     def readdir(self, path, fh):
         dirents = ['.', '..']
-        splitted_path = path.split('/')
+        splitted_path = self._split_path(path)
 
-        if path == '/':
+        if len(splitted_path) == 0:
             dirents.extend(self.struct.keys())
+            for r in dirents:
+                yield r
 
         else:
-            host = splitted_path[1]
-
+            host = splitted_path[0]
             try:
-                dir1 = splitted_path[2]
-                dir2 = splitted_path[3]
-                dirents.extend(self.struct[host][dir1][dir2])
-            except:
-                try:
-                    dir1 = splitted_path[2]
-                    dirents.extend(self.struct[host][dir1])
-                except:
-                    dirents.extend(self.struct[host])
-
-        # elif len(splitted_path) == 2:
-        #     p = splitted_path[1]
-        #     dirents.extend(self.struct[p].keys())
-
-        for r in dirents:
-            yield r
+                dirents.extend(self.struct[host][splitted_path[1]].keys())
+            except IndexError:
+                dirents.extend(self.struct[host].keys())
+            for r in dirents:
+                yield r
 
     def open(self, path, flags):
         self.fd += 1
         return self.fd
 
     def read(self, path, length, offset, fh):
-#        os.lseek(fh, offset, os.SEEK_SET)
-#        return os.read(fh, length)
-        splitted_path = path.split('/')
-        host = splitted_path[1]
-        item = splitted_path[2]
-        value = self.struct[host][item]
-        return str(value)
+        splitted_path = self._split_path(path)
+        host = splitted_path[0]
+        item = splitted_path[1]
+        return str(self.struct[host][item][offset:offset+length])
 
 
 def main(pkl, mountpoint):

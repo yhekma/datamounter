@@ -16,9 +16,6 @@ class AnsFS(Operations):
         f.close()
         return struct
 
-    def _flatten_struct(self, struct):
-        pass
-
     def _split_path(self, path):
         splitted_path = path.split('/')
         while '' in splitted_path:
@@ -39,16 +36,19 @@ class AnsFS(Operations):
 
         if len(splitted_path) <= 1:
             s = stat.S_IFDIR | 0555
-        else:
+        elif len(splitted_path) == 2:
             val = self.struct[host][splitted_path[1]]
             if type(val) == dict:
                 s = stat.S_IFDIR | 0555
             else:
                 size = len(str(val))
                 s = stat.S_IFREG | 0444
+        else:
+            val = self.struct[host][splitted_path[1]][splitted_path[2]]
+            size = len(str(val))
+            s = stat.S_IFREG | 0444
 
-        ret_dict = {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
-        return ret_dict
+        return {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']
@@ -74,9 +74,14 @@ class AnsFS(Operations):
 
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
+        seekend = offset + length
         host = splitted_path[0]
         item = splitted_path[1]
-        return str(self.struct[host][item][offset:offset+length])
+        try:
+            item2 = splitted_path[2]
+            return str(self.struct[host][item][item2][offset:seekend])
+        except IndexError:
+            return str(self.struct[host][item][offset:seekend])
 
 
 def main(pkl, mountpoint):

@@ -21,6 +21,17 @@ class AnsFS(Operations):
         struct = {}
         for host in tempstruct['contacted']:
             struct[host] = tempstruct['contacted'][host]['ansible_facts']
+
+        try:
+            for host in struct.keys():
+                for item in struct[host].keys():
+                    if item.startswith('ansible_eth'):
+                        for ip_val in struct[host][item]['ipv4'].keys():
+                            struct[host][item][ip_val] = struct[host][item]['ipv4'][ip_val]
+                        struct[host][item].pop('ipv4')
+        except KeyError:
+            pass
+
         print "Loaded"
         return struct
 
@@ -33,8 +44,8 @@ class AnsFS(Operations):
 
     def getattr(self, path, fh=None):
         splitted_path = self._split_path(path)
-        s = ''
-        size = 1
+        s = stat.S_IFREG | 0444
+        val = ''
 
         try:
             host = splitted_path[0]
@@ -52,13 +63,15 @@ class AnsFS(Operations):
             if type(val) == dict:
                 s = stat.S_IFDIR | 0555
             else:
-                size = len(str(val))
                 s = stat.S_IFREG | 0444
-        else:
+        elif len(splitted_path) == 3:
             val = self.struct[host][splitted_path[1]][splitted_path[2]]
-            size = len(str(val))
-            s = stat.S_IFREG | 0444
+            if type(val) == dict:
+                s = stat.S_IFDIR | 0555
+            else:
+                s = stat.S_IFREG | 0444
 
+        size = len(str(val)) + 1
         return {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
@@ -85,15 +98,15 @@ class AnsFS(Operations):
 
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
-        seekend = offset + length
         host = splitted_path[0]
         item = splitted_path[1]
         try:
             item2 = splitted_path[2]
-            return str(self.struct[host][item][item2])[offset:seekend]
+            x = "%s\n" % str(self.struct[host][item][item2])
+            return x
         except IndexError:
-            return str(self.struct[host][item])[offset:seekend]
-
+            x = "%s\n" % str(self.struct[host][item])
+            return x
 
 def main(pkl, mountpoint):
     FUSE(AnsFS(pkl), mountpoint, foreground=True)

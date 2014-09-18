@@ -1,19 +1,27 @@
 #!/usr/bin/env python
 
 import sys
-import cPickle
 import stat
+import ansible.runner
 from fuse import FUSE, Operations
 
 class AnsFS(Operations):
-    def __init__(self, pklfile):
-        self.struct = self._load_struct(pklfile)
+    def __init__(self, pattern):
+        self.struct = self._load_struct(pattern)
         self.fd = 0
 
-    def _load_struct(self, filename):
-        f = open(filename, 'rb')
-        struct = cPickle.load(f)
-        f.close()
+    def _load_struct(self, pattern):
+        runner = ansible.runner.Runner(
+                module_name="setup",
+                module_args="",
+                forks=10,
+                pattern=pattern,
+            )
+        tempstruct = runner.run()
+        struct = {}
+        for host in tempstruct['contacted']:
+            struct[host] = tempstruct['contacted'][host]['ansible_facts']
+        print "Loaded"
         return struct
 
     def _split_path(self, path):
@@ -37,7 +45,10 @@ class AnsFS(Operations):
         if len(splitted_path) <= 1:
             s = stat.S_IFDIR | 0555
         elif len(splitted_path) == 2:
-            val = self.struct[host][splitted_path[1]]
+            try:
+                val = self.struct[host][splitted_path[1]]
+            except:
+                val = ''
             if type(val) == dict:
                 s = stat.S_IFDIR | 0555
             else:
@@ -79,9 +90,9 @@ class AnsFS(Operations):
         item = splitted_path[1]
         try:
             item2 = splitted_path[2]
-            return str(self.struct[host][item][item2][offset:seekend])
+            return str(self.struct[host][item][item2])[offset:seekend]
         except IndexError:
-            return str(self.struct[host][item][offset:seekend])
+            return str(self.struct[host][item])[offset:seekend]
 
 
 def main(pkl, mountpoint):

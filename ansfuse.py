@@ -184,8 +184,8 @@ class AnsFS(Operations):
             return x
 
 
-def main(pkl, mountpoint, realtime):
-    FUSE(AnsFS(struct, realtime), mountpoint, foreground=True)
+def main(pkl, mountpoint, realtime, f):
+    FUSE(AnsFS(struct, realtime), mountpoint, foreground=f)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
@@ -196,8 +196,9 @@ if __name__ == "__main__":
     parser.add_argument("--mountpoint", "-m", dest="mountpoint", help="Where to mount the filesystem")
     parser.add_argument("--realtime", "-t", action="store_true", default=False, dest='realtime',
             help="Get the values real-time. Experimental")
+    parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
     args = parser.parse_args()
     print "Loading data"
     struct = create_struct(args)
     print "done"
-    main(struct, args.mountpoint, args.realtime)
+    main(struct, args.mountpoint, args.realtime, args.foreground)

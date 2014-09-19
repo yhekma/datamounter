@@ -14,7 +14,6 @@ def fetch_struct(pattern):
             pattern=pattern,
         )
     struct = runner.run()
-    print "Loaded"
 
     return struct
 
@@ -75,7 +74,8 @@ def create_struct(args):
 
 
 class AnsFS(Operations):
-    def __init__(self, struct):
+    def __init__(self, struct, realtime=False):
+        self.realtime = realtime
         self.struct = struct
         self.fd = 0
 
@@ -85,6 +85,19 @@ class AnsFS(Operations):
             splitted_path.remove('')
 
         return splitted_path
+
+    def _get_real_data(self, host):
+        runner = ansible.runner.Runner(
+                module_name="setup",
+                module_args="",
+                forks=1,
+                pattern=host,
+            )
+        data = runner.run()
+        try:
+            return flatten_struct(data)
+        except KeyError:
+            pass
 
     def getattr(self, path, fh=None):
         splitted_path = self._split_path(path)
@@ -146,15 +159,21 @@ class AnsFS(Operations):
         item = splitted_path[1]
         try:
             item2 = splitted_path[2]
-            x = "%s\n" % str(self.struct[host][item][item2])
+            if self.realtime:
+                x = str(self._get_real_data(host)[host][item][item2])
+            else:
+                x = "%s\n" % str(self.struct[host][item][item2])
             return x
         except IndexError:
-            x = "%s\n" % str(self.struct[host][item])
+            if self.realtime:
+                x = str(self._get_real_data(host)[host][item])
+            else:
+                x = "%s\n" % str(self.struct[host][item])
             return x
 
 
-def main(pkl, mountpoint):
-    FUSE(AnsFS(struct), mountpoint, foreground=True)
+def main(pkl, mountpoint, realtime):
+    FUSE(AnsFS(struct, realtime), mountpoint, foreground=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
@@ -163,8 +182,10 @@ if __name__ == "__main__":
     parser.add_argument("--pattern", "-p", dest="pattern", default=False,
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
     parser.add_argument("--mountpoint", "-m", dest="mountpoint", help="Where to mount the filesystem")
+    parser.add_argument("--realtime", "-t", action="store_true", default=False, dest='realtime',
+            help="Get the values real-time. Experimental")
     args = parser.parse_args()
     print "Loading data"
     struct = create_struct(args)
     print "done"
-    main(struct, args.mountpoint)
+    main(struct, args.mountpoint, args.realtime)

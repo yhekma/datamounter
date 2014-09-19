@@ -29,11 +29,13 @@ usage: ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
 
 Example Usage
 -----
-```ansfuse.py -c dev.pkl -m /opt/infra_map```
-Map the pre-generated datafile stored in *dev.pkl* on */opt/infra_map*
-```ansfuse.py -g prod.pkl -p production-env -m /opt/infra_prod```
-Scan the *production-env* (as defined in your [ansible inventory], save it in *prod.pkl* and map in on */opt/infra/prod*
+Map the pre-generated datafile stored in **dev.pkl** on **/opt/infra_map**:
 
+```ansfuse.py -c dev.pkl -m /opt/infra_map```
+
+Scan the **production-env** (as defined in your [ansible inventory], save it in **prod.pkl** and map in on **/opt/infra/prod**:
+
+```ansfuse.py -g prod.pkl -p production-env -m /opt/infra_prod```
 
 [Ansible]:http://www.ansible.com/
 [ansible inventory]:http://docs.ansible.com/intro_inventory.html

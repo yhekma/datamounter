@@ -30,32 +30,43 @@ def save_struct(pklfile, struct):
     f.close()
 
 def flatten_struct(struct):
-    tempstruct = struct.copy()
-    for host in tempstruct['contacted']:
-        struct[host] = tempstruct['contacted'][host]['ansible_facts']
+    newstruct = {}
+    tempstruct = {}
+    for host in struct['contacted']:
+        tempstruct[host] = struct['contacted'][host]['ansible_facts']
 
-    try:
-        for host in struct.keys():
-            for item in struct[host].keys():
-                if item.startswith('ansible_eth'):
-                    for ip_val in struct[host][item]['ipv4'].keys():
-                        struct[host][item][ip_val] = struct[host][item]['ipv4'][ip_val]
-                    struct[host][item].pop('ipv4')
-    except KeyError:
-        pass
+    for host in tempstruct.keys():
+        for item in tempstruct[host].keys():
+            if item.startswith('ansible_eth'):
+                try:
+                    newstruct[host][item] = tempstruct[host][item].pop('ipv4')
+                except KeyError:
+                    try:
+                        newstruct[host] = {item: tempstruct[host][item].pop('ipv4')}
+                    except KeyError:
+                        pass
+                for net_item in tempstruct[host][item]:
+                    try:
+                        newstruct[host][item][net_item] = tempstruct[host][item][net_item]
+                    except KeyError:
+                        newstruct[host][item] = {net_item: tempstruct[host][item][net_item]}
+            else:
+                try:
+                    newstruct[host][item] = tempstruct[host][item]
+                except KeyError:
+                    newstruct[host] = {item: tempstruct[host][item]}
 
-    return struct
+    return newstruct
 
 def create_struct(args):
-    struct = {}
     if args.cache:
-        tempstruct = load_struct(args.cache)
-        return flatten_struct(tempstruct)
+        struct = load_struct(args.cache)
+        return flatten_struct(struct)
 
     if args.gencache:
         tempstruct = fetch_struct(args.pattern)
-        save_struct(args.gencache, tempstruct)
         struct = flatten_struct(tempstruct)
+        save_struct(args.gencache, struct)
         return struct
 
     if args.pattern:
@@ -153,5 +164,7 @@ if __name__ == "__main__":
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
     parser.add_argument("--mountpoint", "-m", dest="mountpoint", help="Where to mount the filesystem")
     args = parser.parse_args()
+    print "Loading data"
     struct = create_struct(args)
+    print "done"
     main(struct, args.mountpoint)

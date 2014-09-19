@@ -190,7 +190,7 @@ def main(pkl, mountpoint, realtime, f):
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
-        print 'Please specify what to mount where. Use "%s -h" for help.'
+        print 'Please specify what to mount where. Use "%s -h" for help.' % sys.argv[0]
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")

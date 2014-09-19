@@ -34,6 +34,7 @@ def flatten_struct(struct):
     for host in struct['contacted']:
         tempstruct[host] = struct['contacted'][host]['ansible_facts']
 
+    # Remove ipv4 and put contents one "dir" higher
     for host in tempstruct.keys():
         for item in tempstruct[host].keys():
             if item.startswith('ansible_eth'):
@@ -54,6 +55,17 @@ def flatten_struct(struct):
                     newstruct[host][item] = tempstruct[host][item]
                 except KeyError:
                     newstruct[host] = {item: tempstruct[host][item]}
+
+    # Walk through "ansible_mounts" (list) and create direntries
+    for host in newstruct.keys():
+        for mount in newstruct[host]['ansible_mounts']:
+            diskname = mount['device'].split('/')[-1:][0]
+            try:
+                newstruct[host]['ansible_mount_devices'][diskname] = str(mount)
+            except KeyError:
+                newstruct[host]['ansible_mount_devices'] = {diskname: str(mount)}
+
+        newstruct[host].pop('ansible_mounts')
 
     return newstruct
 

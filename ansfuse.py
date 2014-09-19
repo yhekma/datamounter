@@ -1,39 +1,72 @@
 #!/usr/bin/env python
 
-import sys
 import stat
 import ansible.runner
+import cPickle
+import argparse
 from fuse import FUSE, Operations
 
-class AnsFS(Operations):
-    def __init__(self, pattern):
-        self.struct = self._load_struct(pattern)
-        self.fd = 0
+def fetch_struct(pattern):
+    runner = ansible.runner.Runner(
+            module_name="setup",
+            module_args="",
+            forks=10,
+            pattern=pattern,
+        )
+    struct = runner.run()
+    print "Loaded"
 
-    def _load_struct(self, pattern):
-        runner = ansible.runner.Runner(
-                module_name="setup",
-                module_args="",
-                forks=10,
-                pattern=pattern,
-            )
-        tempstruct = runner.run()
-        struct = {}
-        for host in tempstruct['contacted']:
-            struct[host] = tempstruct['contacted'][host]['ansible_facts']
+    return struct
 
-        try:
-            for host in struct.keys():
-                for item in struct[host].keys():
-                    if item.startswith('ansible_eth'):
-                        for ip_val in struct[host][item]['ipv4'].keys():
-                            struct[host][item][ip_val] = struct[host][item]['ipv4'][ip_val]
-                        struct[host][item].pop('ipv4')
-        except KeyError:
-            pass
+def load_struct(pklfile):
+    f = open(pklfile, 'rb')
+    struct = cPickle.load(f)
+    f.close()
+    return struct
 
-        print "Loaded"
+def save_struct(pklfile, struct):
+    f = open(pklfile, 'wb')
+    cPickle.dump(struct, f)
+    f.close()
+
+def flatten_struct(struct):
+    tempstruct = struct.copy()
+    for host in tempstruct['contacted']:
+        struct[host] = tempstruct['contacted'][host]['ansible_facts']
+
+    try:
+        for host in struct.keys():
+            for item in struct[host].keys():
+                if item.startswith('ansible_eth'):
+                    for ip_val in struct[host][item]['ipv4'].keys():
+                        struct[host][item][ip_val] = struct[host][item]['ipv4'][ip_val]
+                    struct[host][item].pop('ipv4')
+    except KeyError:
+        pass
+
+    return struct
+
+def create_struct(args):
+    struct = {}
+    if args.cache:
+        tempstruct = load_struct(args.cache)
+        return flatten_struct(tempstruct)
+
+    if args.gencache:
+        tempstruct = fetch_struct(args.pattern)
+        save_struct(args.gencache, tempstruct)
+        struct = flatten_struct(tempstruct)
         return struct
+
+    if args.pattern:
+        tempstruct = fetch_struct(args.pattern)
+        return flatten_struct(tempstruct)
+
+
+class AnsFS(Operations):
+    def __init__(self, struct):
+        self.struct = struct
+        self.fd = 0
 
     def _split_path(self, path):
         splitted_path = path.split('/')
@@ -108,8 +141,17 @@ class AnsFS(Operations):
             x = "%s\n" % str(self.struct[host][item])
             return x
 
+
 def main(pkl, mountpoint):
-    FUSE(AnsFS(pkl), mountpoint, foreground=True)
+    FUSE(AnsFS(struct), mountpoint, foreground=True)
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
+    parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location and exit")
+    parser.add_argument("--cache", "-c", dest="cache", default=False, help="Location of the cache-file if wanted")
+    parser.add_argument("--pattern", "-p", dest="pattern", default=False,
+            help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
+    parser.add_argument("--mountpoint", "-m", dest="mountpoint", help="Where to mount the filesystem")
+    args = parser.parse_args()
+    struct = create_struct(args)
+    main(struct, args.mountpoint)

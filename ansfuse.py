@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import stat
+import sys
 import ansible.runner
 import cPickle
 import argparse
@@ -188,6 +189,10 @@ def main(pkl, mountpoint, realtime, f):
     FUSE(AnsFS(struct, realtime), mountpoint, foreground=f)
 
 if __name__ == "__main__":
+    if len(sys.argv) == 1:
+        print 'Please specify what to mount where. Use "%s -h" for help.'
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
     parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location and exit")
     parser.add_argument("--cache", "-c", dest="cache", default=False, help="Location of the cache-file if wanted")

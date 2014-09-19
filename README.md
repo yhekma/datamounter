@@ -5,7 +5,8 @@ FUSE filesystem populated using the setup module from [Ansible].
 
 Usage
 -----
-```ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
+```
+ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
                   [--pattern PATTERN] [--mountpoint MOUNTPOINT] [--realtime]
 
 optional arguments:

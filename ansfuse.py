@@ -5,6 +5,7 @@ import sys
 import ansible.runner
 import cPickle
 import argparse
+import time
 from fuse import FUSE, Operations
 
 def gen_runner(pattern):
@@ -165,7 +166,8 @@ class AnsFS(Operations):
                 s = stat.S_IFREG | 0444
 
         size = len(str(val)) + 1
-        return {'st_ctime': 1.1, 'st_mtime': 1.0, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
+        t = time.time()
+        return {'st_ctime': t, 'st_mtime': t, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']

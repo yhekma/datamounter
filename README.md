@@ -21,10 +21,6 @@ optional arguments:
   --mountpoint MOUNTPOINT, -m MOUNTPOINT
                         Where to mount the filesystem
   --realtime, -t        Get the values real-time. Experimental
-
-usage: ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
-                  [--pattern PATTERN] [--mountpoint MOUNTPOINT] [--realtime]
-
 ```
 
 Example Usage

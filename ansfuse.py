@@ -112,6 +112,7 @@ def create_struct(args):
 
 class AnsFS(Operations):
     def __init__(self, struct, realtime=False):
+        self.epoch_time = time.time()
         self.realtime = realtime
         self.struct = struct
         self.fd = 0
@@ -166,8 +167,7 @@ class AnsFS(Operations):
                 s = stat.S_IFREG | 0444
 
         size = len(str(val)) + 1
-        t = time.time()
-        return {'st_ctime': t, 'st_mtime': t, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
+        return {'st_ctime': self.epoch_time, 'st_mtime': self.epoch_time, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']

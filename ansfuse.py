@@ -57,6 +57,15 @@ def flatten_struct(struct):
                 except KeyError:
                     newstruct[host] = {item: tempstruct[host][item]}
 
+    # Move everything in "ansible_local" one level up
+    for host in newstruct.keys():
+        try:
+            for fact in newstruct[host]['ansible_local'].keys():
+                newstruct[host][fact] = newstruct[host]['ansible_local'][fact]
+        except KeyError:
+            pass
+        newstruct[host].pop('ansible_local')
+
     # Walk through "ansible_mounts" (list) and create direntries
     for host in newstruct.keys():
         for mount in newstruct[host]['ansible_mounts']:

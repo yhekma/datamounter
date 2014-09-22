@@ -87,7 +87,7 @@ def create_struct(args):
     if args.gencache:
         tempstruct = fetch_struct(args.pattern)
         struct = flatten_struct(tempstruct)
-        save_struct(args.gencache, struct)
+        save_struct(args.gencache, tempstruct)
         return struct
 
     if args.pattern:

@@ -7,14 +7,28 @@ import cPickle
 import argparse
 from fuse import FUSE, Operations
 
-def fetch_struct(pattern):
+def gen_runner(pattern):
     runner = ansible.runner.Runner(
             module_name="setup",
             module_args="",
             forks=10,
             pattern=pattern,
         )
+
+    return runner
+
+def fetch_struct(pattern, retries=0):
+    runner = gen_runner(pattern)
     struct = runner.run()
+
+    for r in range(int(retries)):
+        if not len(struct['dark']) == 0:
+            newpattern = ':'.join(struct['dark'].keys())
+            print "Retrying %s" % newpattern
+            newrunner = gen_runner(newpattern)
+            newstruct = newrunner.run()
+            for host in newstruct['contacted'].keys():
+                struct['contacted'][host] = newstruct['contacted'][host]
 
     return struct
 
@@ -85,13 +99,13 @@ def create_struct(args):
         return flatten_struct(struct)
 
     if args.gencache:
-        tempstruct = fetch_struct(args.pattern)
+        tempstruct = fetch_struct(args.pattern, args.retries)
         struct = flatten_struct(tempstruct)
         save_struct(args.gencache, tempstruct)
         return struct
 
     if args.pattern:
-        tempstruct = fetch_struct(args.pattern)
+        tempstruct = fetch_struct(args.pattern, args.retries)
         return flatten_struct(tempstruct)
 
 
@@ -211,6 +225,7 @@ if __name__ == "__main__":
     parser.add_argument("--realtime", "-t", action="store_true", default=False, dest='realtime',
             help="Get the values real-time. Experimental")
     parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
+    parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
     args = parser.parse_args()
     print "Loading data"
     struct = create_struct(args)

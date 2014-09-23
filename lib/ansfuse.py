@@ -1,5 +1,116 @@
 import ansible.runner
 import cPickle
+import time
+import stat
+from fuse import Operations
+
+class AnsFS(Operations):
+    def __init__(self, struct, realtime=False):
+        self.epoch_time = time.time()
+        self.realtime = realtime
+        self.struct = struct
+        self.fd = 0
+        self.ctimedict = {}
+
+    def _split_path(self, path):
+        splitted_path = path.split('/')
+        while '' in splitted_path:
+            splitted_path.remove('')
+
+        return splitted_path
+
+    def _get_real_data(self, host):
+        runner = ansible.runner.Runner(
+                module_name="setup",
+                module_args="",
+                forks=1,
+                pattern=host,
+            )
+        data = runner.run()
+        try:
+            return ansfuse.flatten_struct(data)
+        except KeyError:
+            pass
+
+    def getattr(self, path, fh=None):
+        splitted_path = self._split_path(path)
+        s = stat.S_IFREG | 0444
+        val = ''
+
+        try:
+            host = splitted_path[0]
+        except:
+            host = ''
+            s = stat.S_IFDIR | 0555
+
+        if len(splitted_path) <= 1:
+            s = stat.S_IFDIR | 0555
+        elif len(splitted_path) == 2:
+            try:
+                val = self.struct[host][splitted_path[1]]
+            except:
+                val = ''
+            if type(val) == dict:
+                s = stat.S_IFDIR | 0555
+            else:
+                s = stat.S_IFREG | 0444
+        elif len(splitted_path) == 3:
+            val = self.struct[host][splitted_path[1]][splitted_path[2]]
+            if type(val) == dict:
+                s = stat.S_IFDIR | 0555
+            else:
+                s = stat.S_IFREG | 0444
+
+        size = len(str(val)) + 1
+        try:
+            ctime = self.ctimedict[str(path)]
+        except KeyError:
+            ctime = self.epoch_time
+
+        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
+
+    def readdir(self, path, fh):
+        dirents = ['.', '..']
+        splitted_path = self._split_path(path)
+
+        if len(splitted_path) == 0:
+            dirents.extend(self.struct.keys())
+            for r in dirents:
+                yield r
+
+        else:
+            host = splitted_path[0]
+            try:
+                dirents.extend(self.struct[host][splitted_path[1]].keys())
+            except IndexError:
+                dirents.extend(self.struct[host].keys())
+            for r in dirents:
+                yield r
+
+    def open(self, path, flags):
+        self.fd += 1
+        return self.fd
+
+    def read(self, path, length, offset, fh):
+        splitted_path = self._split_path(path)
+        host = splitted_path[0]
+        item = splitted_path[1]
+        try:
+            item2 = splitted_path[2]
+            if self.realtime:
+                x = str(self._get_real_data(host)[host][item][item2])
+                self.ctimedict[str(path)] = time.time()
+            else:
+                x = "%s\n" % str(self.struct[host][item][item2])
+            return x
+        except IndexError:
+            if self.realtime:
+                x = str(self._get_real_data(host)[host][item])
+                self.ctimedict[str(path)] = time.time()
+            else:
+                x = "%s\n" % str(self.struct[host][item])
+            return x
+
 
 def create_struct(args):
     if args.cache:

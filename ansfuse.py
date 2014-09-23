@@ -14,6 +14,7 @@ class AnsFS(Operations):
         self.realtime = realtime
         self.struct = struct
         self.fd = 0
+        self.ctimedict = {}
 
     def _split_path(self, path):
         splitted_path = path.split('/')
@@ -65,7 +66,12 @@ class AnsFS(Operations):
                 s = stat.S_IFREG | 0444
 
         size = len(str(val)) + 1
-        return {'st_ctime': self.epoch_time, 'st_mtime': self.epoch_time, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
+        try:
+            ctime = self.ctimedict[str(path)]
+        except KeyError:
+            ctime = self.epoch_time
+
+        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']
@@ -97,12 +103,14 @@ class AnsFS(Operations):
             item2 = splitted_path[2]
             if self.realtime:
                 x = str(self._get_real_data(host)[host][item][item2])
+                self.ctimedict[str(path)] = time.time()
             else:
                 x = "%s\n" % str(self.struct[host][item][item2])
             return x
         except IndexError:
             if self.realtime:
                 x = str(self._get_real_data(host)[host][item])
+                self.ctimedict[str(path)] = time.time()
             else:
                 x = "%s\n" % str(self.struct[host][item])
             return x

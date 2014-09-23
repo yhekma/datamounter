@@ -8,22 +8,6 @@ import time
 from lib import anshelpers
 from fuse import FUSE, Operations
 
-def create_struct(args):
-    if args.cache:
-        struct = anshelpers.load_struct(args.cache)
-        return anshelpers.flatten_struct(struct)
-
-    if args.gencache:
-        tempstruct = anshelpers.fetch_struct(args.pattern, args.retries)
-        struct = anshelpers.flatten_struct(tempstruct)
-        anshelpers.save_struct(args.gencache, tempstruct)
-        return struct
-
-    if args.pattern:
-        tempstruct = anshelpers.fetch_struct(args.pattern, args.retries)
-        return anshelpers.flatten_struct(tempstruct)
-
-
 class AnsFS(Operations):
     def __init__(self, struct, realtime=False):
         self.epoch_time = time.time()
@@ -145,6 +129,6 @@ if __name__ == "__main__":
     parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
     args = parser.parse_args()
     print "Loading data"
-    struct = create_struct(args)
+    struct = anshelpers.create_struct(args)
     print "done"
     main(struct, args.mountpoint[0], args.realtime, args.foreground)

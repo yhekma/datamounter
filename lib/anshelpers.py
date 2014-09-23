@@ -1,6 +1,22 @@
 import ansible.runner
 import cPickle
 
+def create_struct(args):
+    if args.cache:
+        struct = load_struct(args.cache)
+        return flatten_struct(struct)
+
+    if args.gencache:
+        tempstruct = fetch_struct(args.pattern, args.retries)
+        struct = flatten_struct(tempstruct)
+        save_struct(args.gencache, tempstruct)
+        return struct
+
+    if args.pattern:
+        tempstruct = fetch_struct(args.pattern, args.retries)
+        return flatten_struct(tempstruct)
+
+
 def gen_runner(pattern):
     runner = ansible.runner.Runner(
             module_name="setup",

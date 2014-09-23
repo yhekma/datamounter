@@ -14,7 +14,7 @@ if __name__ == "__main__":
         print 'Please specify what to mount where. Use "%s -h" for help.' % sys.argv[0]
         sys.exit(1)
 
-    parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse", prog="ansfuse.py")
+    parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
     group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
     parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location and exit")

@@ -28,7 +28,7 @@ class AnsFS(Operations):
             )
         data = runner.run()
         try:
-            return ansfuse.flatten_struct(data)
+            return flatten_struct(data)
         except KeyError:
             pass
 

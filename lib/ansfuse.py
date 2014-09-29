@@ -4,6 +4,14 @@ import time
 import stat
 from fuse import Operations
 
+def run_custom_command(pattern, command):
+    runner = ansible.runner.Runner(
+            module_name="shell",
+            module_args=command,
+            pattern=pattern,
+        )
+    return runner.run()
+
 class AnsFS(Operations):
     def __init__(self, struct, realtime=False):
         self.epoch_time = time.time()
@@ -112,10 +120,15 @@ class AnsFS(Operations):
             return x
 
 
-def create_struct(args):
+def create_struct(args, pattern=None, command=None):
     if args.cache:
         struct = load_struct(args.cache)
-        return flatten_struct(struct)
+        if pattern:
+            custom_commands = run_custom_command(pattern, command)
+        else:
+            custom_commands = None
+
+        return flatten_struct(struct, custom_commands)
 
     if args.gencache:
         tempstruct = fetch_struct(args.pattern, args.retries)
@@ -164,7 +177,7 @@ def save_struct(pklfile, struct):
     cPickle.dump(struct, f)
     f.close()
 
-def flatten_struct(struct):
+def flatten_struct(struct, custom_output=None):
     newstruct = {}
     tempstruct = {}
     for host in struct['contacted']:
@@ -211,5 +224,11 @@ def flatten_struct(struct):
                 newstruct[host]['ansible_mount_devices'] = {diskname: str(mount)}
 
         newstruct[host].pop('ansible_mounts')
+
+    if custom_output:
+        for filename in custom_output.keys():
+            for host in custom_output[filename]['contacted'].keys():
+                output = custom_output[filename]['contacted'][host]['stdout']
+                newstruct[host][filename] = output
 
     return newstruct

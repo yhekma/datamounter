@@ -18,9 +18,13 @@ optional arguments:
   --pattern PATTERN, -p PATTERN
                         Pattern to extract info from. Needed when generating a
                         cache file and when not using a cache file
-  --mountpoint MOUNTPOINT, -m MOUNTPOINT
-                        Where to mount the filesystem
   --realtime, -t        Get the values real-time. Experimental
+  --foreground, -f      Run in foreground
+  --retries RETRIES, -r RETRIES
+                        Optional number of retries to contact unreachable
+                        hosts
+  --custom CUSTOM       Optional ini file with custom commands to run on
+                        remote host which output to expose
 ```
 
 Example Usage

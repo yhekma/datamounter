@@ -1,4 +1,4 @@
-AnsFUSE
+FuseMounter
 =======
 
 FUSE filesystem populated using the setup module from [Ansible].

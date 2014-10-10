@@ -103,22 +103,28 @@ class AnsFS(Operations):
         splitted_path = self._split_path(path)
         host = splitted_path[0]
         item = splitted_path[1]
+        x = ''
         try:
             item2 = splitted_path[2]
-            if self.realtime:
+            if self.realtime and item2 in self.struct[host][item].keys():
                 x = str(self._get_real_data(host)[host][item][item2])
                 self.ctimedict[str(path)] = time.time()
             else:
-                x = "%s\n" % str(self.struct[host][item][item2])
-            return x
+                try:
+                    x = "%s\n" % str(self.struct[host][item][item2])
+                except KeyError:
+                    pass
+
         except IndexError:
-            if self.realtime:
+            if self.realtime and item in self.struct[host].keys():
                 x = str(self._get_real_data(host)[host][item])
                 self.ctimedict[str(path)] = time.time()
             else:
-                x = "%s\n" % str(self.struct[host][item])
-            return x
-
+                try:
+                    x = "%s\n" % str(self.struct[host][item])
+                except KeyError:
+                    pass
+        return x
 
 def create_struct(args, pattern=None, command=None):
     if args.cache:

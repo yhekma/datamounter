@@ -12,7 +12,7 @@ ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
 optional arguments:
   -h, --help            show this help message and exit
   --gen-cache GENCACHE, -g GENCACHE
-                        Write a cache file at this location and exit
+                        Write a cache file at this location.
   --cache CACHE, -c CACHE
                         Location of the cache-file if wanted
   --pattern PATTERN, -p PATTERN

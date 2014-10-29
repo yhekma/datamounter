@@ -32,7 +32,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
     group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
-    parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location and exit")
+    parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location")
     group.add_argument("--cache", "-c", dest="cache", default=False, help="Location of the cache-file if wanted")
     group.add_argument("--pattern", "-p", dest="pattern", default=False,
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")

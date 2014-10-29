@@ -180,6 +180,11 @@ def fetch_struct(pattern, retries=0):
             newrunner = gen_runner(newpattern)
             newstruct = newrunner.run()
             for host in newstruct['contacted'].keys():
+                try:
+                    struct['dark'].pop(host)
+                except KeyError:
+                    pass
+            for host in newstruct['contacted'].keys():
                 struct['contacted'][host] = newstruct['contacted'][host]
 
     return struct

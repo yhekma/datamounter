@@ -71,7 +71,7 @@ class AnsFS(Operations):
         except KeyError:
             ctime = self.epoch_time
 
-        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': gid, 'st_uid': uid, 'st_atime': 1.1}
+        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_mode': s, 'st_size': size, 'st_gid': gid, 'st_uid': uid, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']

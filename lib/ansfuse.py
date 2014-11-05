@@ -2,7 +2,12 @@ import ansible.runner
 import cPickle
 import time
 import stat
+import os
+import pwd
 from fuse import Operations
+
+uid = pwd.getpwuid(os.getuid()).pw_uid
+gid = pwd.getpwuid(os.getuid()).pw_gid
 
 def run_custom_command(pattern, command):
     runner = ansible.runner.Runner(
@@ -76,7 +81,7 @@ class AnsFS(Operations):
         except KeyError:
             ctime = self.epoch_time
 
-        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': 0, 'st_uid': 0, 'st_atime': 1.1}
+        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_nlink': 1, 'st_mode': s, 'st_size': size, 'st_gid': gid, 'st_uid': uid, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']

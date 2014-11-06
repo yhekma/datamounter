@@ -20,8 +20,8 @@ def load_ini(path):
     return result
 
 
-def main(pkl, mountpoint, realtime, f):
-    FUSE(AnsFS(struct, realtime), mountpoint, foreground=f)
+def main(pkl, mountpoint, f):
+    FUSE(AnsFS(struct), mountpoint, foreground=f)
 
 if __name__ == "__main__":
     struct = {}
@@ -36,8 +36,6 @@ if __name__ == "__main__":
     group.add_argument("--cache", "-c", dest="cache", default=False, help="Location of the cache-file if wanted")
     group.add_argument("--pattern", "-p", dest="pattern", default=False,
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
-    parser.add_argument("--realtime", "-t", action="store_true", default=False, dest='realtime',
-            help="Get the values real-time. Experimental")
     parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
     parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
     parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose", default=None)
@@ -68,4 +66,4 @@ if __name__ == "__main__":
         struct = flatten_struct(tempstruct, custom_commands)
 
     print "done"
-    main(struct, args.mountpoint[0], args.realtime, args.foreground)
+    main(struct, args.mountpoint[0], args.foreground)

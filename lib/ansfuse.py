@@ -9,6 +9,15 @@ from fuse import Operations
 uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
+def recursive_lookup(path, struct):
+    if not type(struct) == dict:
+        return struct
+    if len(path) == 0:
+        return struct
+
+    newpath = path[1:]
+    return recursive_lookup(newpath, struct[path[0]])
+
 def run_custom_command(pattern, command):
     runner = ansible.runner.Runner(
             module_name="shell",
@@ -48,34 +57,15 @@ class AnsFS(Operations):
 
     def getattr(self, path, fh=None):
         splitted_path = self._split_path(path)
-        s = stat.S_IFREG | 0444
-        val = ''
+        val = recursive_lookup(splitted_path, self.struct)
 
-        try:
-            host = splitted_path[0]
-        except:
-            host = ''
+        if type(val) == dict:
             s = stat.S_IFDIR | 0555
-
-        if len(splitted_path) <= 1:
-            s = stat.S_IFDIR | 0555
-        elif len(splitted_path) == 2:
-            try:
-                val = self.struct[host][splitted_path[1]]
-            except:
-                val = ''
-            if type(val) == dict:
-                s = stat.S_IFDIR | 0555
-            else:
-                s = stat.S_IFREG | 0444
-        elif len(splitted_path) == 3:
-            val = self.struct[host][splitted_path[1]][splitted_path[2]]
-            if type(val) == dict:
-                s = stat.S_IFDIR | 0555
-            else:
-                s = stat.S_IFREG | 0444
+        else:
+            s = stat.S_IFREG | 0444
 
         size = len(str(val)) + 1
+
         try:
             ctime = self.ctimedict[str(path)]
         except KeyError:
@@ -86,6 +76,7 @@ class AnsFS(Operations):
     def readdir(self, path, fh):
         dirents = ['.', '..']
         splitted_path = self._split_path(path)
+        path_tip = recursive_lookup(splitted_path, self.struct)
 
         if len(splitted_path) == 0:
             dirents.extend(self.struct.keys())
@@ -93,11 +84,7 @@ class AnsFS(Operations):
                 yield r
 
         else:
-            host = splitted_path[0]
-            try:
-                dirents.extend(self.struct[host][splitted_path[1]].keys())
-            except IndexError:
-                dirents.extend(self.struct[host].keys())
+            dirents.extend(path_tip.keys())
             for r in dirents:
                 yield r
 
@@ -107,41 +94,9 @@ class AnsFS(Operations):
 
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
-        host = splitted_path[0]
-        item = splitted_path[1]
-        x = ''
-        realtime = False
+        path_tip = recursive_lookup(splitted_path, self.struct)
     
-        if self.realtime: # Do we want to do realtime?
-            try:
-                if time.time() - int(self.atimes[str(path)]) > 3: # If item was accessed more than 3 seconds ago
-                    realtime = True
-                    self.atimes[str(path)] = time.time() # Update access times
-            except KeyError: # First time we access this file
-                realtime = True
-                self.atimes[str(path)] = time.time()
-
-        try:
-            item2 = splitted_path[2]
-            if realtime and item2 in self.struct[host][item].keys():
-                x = str(self._get_real_data(host)[host][item][item2])
-                self.ctimedict[str(path)] = time.time()
-            else:
-                try:
-                    x = "%s\n" % str(self.struct[host][item][item2])
-                except KeyError:
-                    pass
-
-        except IndexError:
-            if realtime and item in self.struct[host].keys():
-                x = str(self._get_real_data(host)[host][item])
-                self.ctimedict[str(path)] = time.time()
-            else:
-                try:
-                    x = "%s\n" % str(self.struct[host][item])
-                except KeyError:
-                    pass
-        return x
+        return "%s\n" % str(path_tip)
 
 def create_struct(args, pattern=None, command=None):
     if args.cache:

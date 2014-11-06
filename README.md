@@ -18,7 +18,6 @@ optional arguments:
   --pattern PATTERN, -p PATTERN
                         Pattern to extract info from. Needed when generating a
                         cache file and when not using a cache file
-  --realtime, -t        Get the values real-time. Experimental
   --foreground, -f      Run in foreground
   --retries RETRIES, -r RETRIES
                         Optional number of retries to contact unreachable

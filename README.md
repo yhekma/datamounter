@@ -7,7 +7,7 @@ Usage
 -----
 ```
 ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
-                  [--pattern PATTERN] [--mountpoint MOUNTPOINT] [--realtime]
+                  [--pattern PATTERN] [--mountpoint MOUNTPOINT]
 
 optional arguments:
   -h, --help            show this help message and exit

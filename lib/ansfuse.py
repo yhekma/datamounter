@@ -169,24 +169,10 @@ def flatten_struct(struct, custom_output=None):
     # Remove ipv4 and put contents one "dir" higher
     for host in tempstruct.keys():
         for item in tempstruct[host].keys():
-            if item.startswith('ansible_eth'):
-                try:
-                    newstruct[host][item] = tempstruct[host][item].pop('ipv4')
-                except KeyError:
-                    try:
-                        newstruct[host] = {item: tempstruct[host][item].pop('ipv4')}
-                    except KeyError:
-                        pass
-                for net_item in tempstruct[host][item]:
-                    try:
-                        newstruct[host][item][net_item] = tempstruct[host][item][net_item]
-                    except KeyError:
-                        newstruct[host][item] = {net_item: tempstruct[host][item][net_item]}
-            else:
-                try:
-                    newstruct[host][item] = tempstruct[host][item]
-                except KeyError:
-                    newstruct[host] = {item: tempstruct[host][item]}
+            try:
+                newstruct[host][item] = tempstruct[host][item]
+            except KeyError:
+                newstruct[host] = {item: tempstruct[host][item]}
 
     # Move everything in "ansible_local" one level up
     for host in newstruct.keys():

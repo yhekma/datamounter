@@ -6,19 +6,25 @@ FUSE filesystem populated using the setup module from [Ansible].
 Usage
 -----
 ```
-ansfuse.py [-h] [--gen-cache GENCACHE] [--cache CACHE]
-                  [--pattern PATTERN] [--mountpoint MOUNTPOINT] [--realtime]
+usage: fusemounter.py [-h] [--gen-cache GENCACHE]
+                      (--cache CACHE | --pattern PATTERN) [--foreground]
+                      [--retries RETRIES] [--custom CUSTOM]
+                      mountpoint [mountpoint ...]
+
+Mount virtual ansible-based filesystem using Fuse
+
+positional arguments:
+  mountpoint            Where to mount the filesystem
 
 optional arguments:
   -h, --help            show this help message and exit
   --gen-cache GENCACHE, -g GENCACHE
-                        Write a cache file at this location.
+                        Write a cache file at this location
   --cache CACHE, -c CACHE
                         Location of the cache-file if wanted
   --pattern PATTERN, -p PATTERN
                         Pattern to extract info from. Needed when generating a
                         cache file and when not using a cache file
-  --realtime, -t        Get the values real-time. Experimental
   --foreground, -f      Run in foreground
   --retries RETRIES, -r RETRIES
                         Optional number of retries to contact unreachable

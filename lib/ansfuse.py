@@ -202,9 +202,9 @@ def flatten_struct(struct, custom_output=None):
         for mount in newstruct[host]['ansible_mounts']:
             diskname = mount['device'].split('/')[-1:][0]
             try:
-                newstruct[host]['ansible_mount_devices'][diskname] = str(mount)
+                newstruct[host]['mounts'][diskname] = mount
             except KeyError:
-                newstruct[host]['ansible_mount_devices'] = {diskname: str(mount)}
+                newstruct[host]['mounts'] = {diskname: mount}
 
         newstruct[host].pop('ansible_mounts')
 

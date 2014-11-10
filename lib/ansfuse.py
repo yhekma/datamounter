@@ -10,9 +10,10 @@ uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
 def recursive_lookup(path, struct):
-    if not type(struct) == dict:
-        return struct
     if len(path) == 0:
+        return struct
+
+    if not type(struct) == dict:
         return struct
 
     newpath = path[1:]
@@ -116,27 +117,6 @@ class AnsFS(Operations):
         path_tip = recursive_lookup(splitted_path, self.struct)
     
         return "%s\n" % str(path_tip)
-
-def create_struct(args, pattern=None, command=None):
-    if args.cache:
-        struct = load_struct(args.cache)
-        if pattern:
-            custom_commands = run_custom_command(pattern, command)
-        else:
-            custom_commands = None
-
-        return flatten_struct(struct, custom_commands)
-
-    if args.gencache:
-        tempstruct = fetch_struct(args.pattern, args.retries)
-        struct = flatten_struct(tempstruct)
-        save_struct(args.gencache, tempstruct)
-        return struct
-
-    if args.pattern:
-        tempstruct = fetch_struct(args.pattern, args.retries)
-        return flatten_struct(tempstruct)
-
 
 def gen_runner(pattern):
     runner = ansible.runner.Runner(

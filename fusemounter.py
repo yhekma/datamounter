@@ -44,11 +44,11 @@ if __name__ == "__main__":
     print "Loading data"
 
     if args.custom:
-        cust = load_ini(args.custom)
+        cust_input = load_ini(args.custom)
         custom_commands = {}
-        for host in cust.keys():
-            for filename in cust[host].keys():
-                custom_commands[filename] = run_custom_command(host, cust[host][filename])
+        for host in cust_input.keys():
+            for filename in cust_input[host].keys():
+                custom_commands[filename] = run_custom_command(host, cust_input[host][filename])
 
     else:
         custom_commands = None

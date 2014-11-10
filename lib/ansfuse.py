@@ -50,6 +50,7 @@ class AnsFS(Operations):
                 pattern=host,
             )
         data = runner.run()
+
         try:
             return flatten_struct(data)
         except KeyError:
@@ -94,6 +95,24 @@ class AnsFS(Operations):
 
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
+
+        if self.realtime:
+            host = splitted_path[0]
+
+            try:
+                if int(time.time()-self.atimes[path]) < 10:
+                    self.atimes[path] = time.time()
+                else:
+                    current_host_data = self._get_real_data(host)
+                    self.struct[host] = current_host_data[host]
+                    self.atimes[path] = time.time()
+
+            except KeyError:
+                current_host_data = self._get_real_data(host)
+                self.struct[host] = current_host_data[host]
+                self.atimes[path] = time.time()
+
+
         path_tip = recursive_lookup(splitted_path, self.struct)
     
         return "%s\n" % str(path_tip)

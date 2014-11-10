@@ -20,8 +20,8 @@ def load_ini(path):
     return result
 
 
-def main(pkl, mountpoint, f, realtime):
-    FUSE(AnsFS(struct, realtime), mountpoint, foreground=f)
+def main(pkl, mountpoint, f, realtime, allow_other=False):
+    FUSE(AnsFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f)
 
 if __name__ == "__main__":
     struct = {}
@@ -40,6 +40,7 @@ if __name__ == "__main__":
     parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
     parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose", default=None)
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
+    parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
     args = parser.parse_args()
     print "Loading data"
 
@@ -67,4 +68,4 @@ if __name__ == "__main__":
         struct = flatten_struct(tempstruct, custom_commands)
 
     print "done"
-    main(struct, args.mountpoint[0], args.foreground, args.realtime)
+    main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other)

@@ -16,8 +16,11 @@ def recursive_lookup(path, struct):
     if not type(struct) == dict:
         return struct
 
-    newpath = path[1:]
-    return recursive_lookup(newpath, struct[path[0]])
+    try:
+        newpath = path[1:]
+        return recursive_lookup(newpath, struct[path[0]])
+    except KeyError:
+        return None
 
 def run_custom_command(pattern, command):
     runner = ansible.runner.Runner(

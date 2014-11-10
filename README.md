@@ -37,10 +37,14 @@ optional arguments:
 Example Usage
 -----
 Map the pre-generated datafile stored in **dev.pkl** on **/opt/infra_map**:
+
 ```ansfuse.py -c dev.pkl /opt/infra_map```
 
+
 Map the hosts defined in the **prod** group as defined in [ansible inventory] to **/opt/prod_map** and update the values in realtime:
+
 ```ansfuse -p prod --realtime /opt/prod_map```
+
 
 Scan the **production-env** (as defined in your [ansible inventory]), save it in **prod.pkl** and map in on **/opt/infra/prod**:
 

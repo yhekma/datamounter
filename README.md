@@ -1,4 +1,4 @@
-FuseMounter
+Datamounter
 =======
 
 FUSE filesystem populated using the setup module from [Ansible].

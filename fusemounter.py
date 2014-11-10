@@ -21,7 +21,7 @@ def load_ini(path):
 
 
 def main(pkl, mountpoint, f, realtime, allow_other=False):
-    FUSE(AnsFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f)
+    FUSE(AnsFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 if __name__ == "__main__":
     struct = {}

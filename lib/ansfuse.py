@@ -212,6 +212,6 @@ def flatten_struct(struct, custom_output=None):
         for filename in custom_output.keys():
             for host in custom_output[filename]['contacted'].keys():
                 output = custom_output[filename]['contacted'][host]['stdout']
-                newstruct[host][filename] = output
+                newstruct[host]['custom_commands'] = {filename: output}
 
     return newstruct

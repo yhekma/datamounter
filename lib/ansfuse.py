@@ -97,7 +97,7 @@ class AnsFS(Operations):
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
 
-        if self.realtime:
+        if self.realtime and not "custom_commands" in splitted_path:
             host = splitted_path[0]
 
             try:

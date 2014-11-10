@@ -34,7 +34,7 @@ class AnsFS(Operations):
         self.struct = struct
         self.fd = 0
         self.ctimedict = {}
-        self.atimes = {}
+        self.fetch_times = {}
 
     def _split_path(self, path):
         splitted_path = path.split('/')
@@ -101,17 +101,18 @@ class AnsFS(Operations):
             host = splitted_path[0]
 
             try:
-                if int(time.time()-self.atimes[path]) < 10:
-                    self.atimes[path] = time.time()
+                if int(time.time()-self.fetch_times[host]) < 10:
+                    pass
+
                 else:
                     current_host_data = self._get_real_data(host)
                     self.struct[host] = current_host_data[host]
-                    self.atimes[path] = time.time()
+                    self.fetch_times[host] = time.time()
 
             except KeyError:
                 current_host_data = self._get_real_data(host)
                 self.struct[host] = current_host_data[host]
-                self.atimes[path] = time.time()
+                self.fetch_times[host] = time.time()
 
 
         path_tip = recursive_lookup(splitted_path, self.struct)

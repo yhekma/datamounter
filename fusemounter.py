@@ -3,7 +3,8 @@
 import sys
 import argparse
 import ConfigParser
-from lib.ansfuse import AnsFS, load_struct, run_custom_command, flatten_struct, save_struct, fetch_struct
+from lib.ansfuse import AnsFS, load_struct, save_struct
+from lib.ansible_helpers import run_custom_command, flatten_ansible_struct, fetch_struct
 from fuse import FUSE
 
 def load_ini(path):
@@ -56,16 +57,16 @@ if __name__ == "__main__":
 
     if args.cache:
         struct = load_struct(args.cache)
-        struct = flatten_struct(struct, custom_commands)
+        struct = flatten_ansible_struct(struct, custom_commands)
 
     elif args.gencache:
         tempstruct = fetch_struct(args.pattern, args.retries)
-        struct = flatten_struct(tempstruct, custom_commands)
+        struct = flatten_ansible_struct(tempstruct, custom_commands)
         save_struct(args.gencache, tempstruct)
 
     elif args.pattern:
         tempstruct = fetch_struct(args.pattern, args.retries)
-        struct = flatten_struct(tempstruct, custom_commands)
+        struct = flatten_ansible_struct(tempstruct, custom_commands)
 
     print "done"
     main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other)

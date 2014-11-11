@@ -1,34 +1,13 @@
-import ansible.runner
 import cPickle
 import time
 import stat
 import os
 import pwd
+from ansible_helpers import get_real_data
 from fuse import Operations
 
 uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
-
-def recursive_lookup(path, struct):
-    if len(path) == 0:
-        return struct
-
-    if not type(struct) == dict:
-        return struct
-
-    try:
-        newpath = path[1:]
-        return recursive_lookup(newpath, struct[path[0]])
-    except KeyError:
-        return None
-
-def run_custom_command(pattern, command):
-    runner = ansible.runner.Runner(
-            module_name="shell",
-            module_args=command,
-            pattern=pattern,
-    )
-    return runner.run()
 
 class AnsFS(Operations):
     def __init__(self, struct, realtime=False):
@@ -46,23 +25,22 @@ class AnsFS(Operations):
 
         return splitted_path
 
-    def _get_real_data(self, host):
-        runner = ansible.runner.Runner(
-                module_name="setup",
-                module_args="",
-                forks=1,
-                pattern=host,
-        )
-        data = runner.run()
+    def _recursive_lookup(self, path, struct):
+        if len(path) == 0:
+            return struct
+
+        if not type(struct) == dict:
+            return struct
 
         try:
-            return flatten_struct(data)
+            newpath = path[1:]
+            return self._recursive_lookup(newpath, struct[path[0]])
         except KeyError:
-            pass
+            return None
 
     def getattr(self, path, fh=None):
         splitted_path = self._split_path(path)
-        val = recursive_lookup(splitted_path, self.struct)
+        val = self._recursive_lookup(splitted_path, self.struct)
 
         if type(val) == dict:
             s = stat.S_IFDIR | 0555
@@ -81,7 +59,7 @@ class AnsFS(Operations):
     def readdir(self, path, fh):
         dirents = ['.', '..']
         splitted_path = self._split_path(path)
-        path_tip = recursive_lookup(splitted_path, self.struct)
+        path_tip = self._recursive_lookup(splitted_path, self.struct)
 
         if len(splitted_path) == 0:
             dirents.extend(self.struct.keys())
@@ -108,47 +86,17 @@ class AnsFS(Operations):
                     pass
 
                 else:
-                    current_host_data = self._get_real_data(host)
+                    current_host_data = get_real_data(host)
                     self.struct[host] = current_host_data[host]
                     self.fetch_times[host] = time.time()
 
             except KeyError:
-                current_host_data = self._get_real_data(host)
+                current_host_data = get_real_data(host)
                 self.struct[host] = current_host_data[host]
                 self.fetch_times[host] = time.time()
 
-        path_tip = recursive_lookup(splitted_path, self.struct)
+        path_tip = self._recursive_lookup(splitted_path, self.struct)
         return "%s\n" % str(path_tip)
-
-def gen_runner(pattern):
-    runner = ansible.runner.Runner(
-            module_name="setup",
-            module_args="",
-            forks=10,
-            pattern=pattern,
-    )
-
-    return runner
-
-def fetch_struct(pattern, retries=0):
-    runner = gen_runner(pattern)
-    struct = runner.run()
-
-    for r in range(int(retries)):
-        if not len(struct['dark']) == 0:
-            newpattern = ':'.join(struct['dark'].keys())
-            print "Retrying %s" % newpattern
-            newrunner = gen_runner(newpattern)
-            newstruct = newrunner.run()
-            for host in newstruct['contacted'].keys():
-                try:
-                    struct['dark'].pop(host)
-                except KeyError:
-                    pass
-            for host in newstruct['contacted'].keys():
-                struct['contacted'][host] = newstruct['contacted'][host]
-
-    return struct
 
 def load_struct(pklfile):
     f = open(pklfile, 'rb')
@@ -160,40 +108,3 @@ def save_struct(pklfile, struct):
     f = open(pklfile, 'wb')
     cPickle.dump(struct, f)
     f.close()
-
-def flatten_struct(struct, custom_output=None):
-    newstruct = {}
-    tempstruct = {}
-    for host in struct['contacted']:
-        tempstruct[host] = struct['contacted'][host]['ansible_facts']
-
-    # Remove ipv4 and put contents one "dir" higher
-    for host in tempstruct.keys():
-        for item in tempstruct[host].keys():
-            try:
-                newstruct[host][item] = tempstruct[host][item]
-            except KeyError:
-                newstruct[host] = {item: tempstruct[host][item]}
-
-    # Rename ansible_local to local_facts
-    for host in newstruct.keys():
-        newstruct[host]['local_facts'] = newstruct[host].pop('ansible_local')
-
-    # Walk through "ansible_mounts" (list) and create direntries
-    for host in newstruct.keys():
-        for mount in newstruct[host]['ansible_mounts']:
-            diskname = mount['device'].split('/')[-1:][0]
-            try:
-                newstruct[host]['mounts'][diskname] = mount
-            except KeyError:
-                newstruct[host]['mounts'] = {diskname: mount}
-
-        newstruct[host].pop('ansible_mounts')
-
-    if custom_output:
-        for filename in custom_output.keys():
-            for host in custom_output[filename]['contacted'].keys():
-                output = custom_output[filename]['contacted'][host]['stdout']
-                newstruct[host]['custom_commands'] = {filename: output}
-
-    return newstruct

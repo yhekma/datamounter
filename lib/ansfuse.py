@@ -27,7 +27,7 @@ def run_custom_command(pattern, command):
             module_name="shell",
             module_args=command,
             pattern=pattern,
-        )
+    )
     return runner.run()
 
 class AnsFS(Operations):
@@ -52,7 +52,7 @@ class AnsFS(Operations):
                 module_args="",
                 forks=1,
                 pattern=host,
-            )
+        )
         data = runner.run()
 
         try:
@@ -104,7 +104,7 @@ class AnsFS(Operations):
             host = splitted_path[0]
 
             try:
-                if int(time.time()-self.fetch_times[host]) < 10:
+                if int(time.time() - self.fetch_times[host]) < 10:
                     pass
 
                 else:
@@ -117,9 +117,7 @@ class AnsFS(Operations):
                 self.struct[host] = current_host_data[host]
                 self.fetch_times[host] = time.time()
 
-
         path_tip = recursive_lookup(splitted_path, self.struct)
-    
         return "%s\n" % str(path_tip)
 
 def gen_runner(pattern):
@@ -128,7 +126,7 @@ def gen_runner(pattern):
             module_args="",
             forks=10,
             pattern=pattern,
-        )
+    )
 
     return runner
 

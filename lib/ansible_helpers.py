@@ -21,7 +21,7 @@ def flatten_ansible_struct(struct, custom_output=None):
     # Walk through "ansible_mounts" (list) and create direntries
     for host in newstruct.keys():
         for mount in newstruct[host]['ansible_mounts']:
-            diskname = mount['device'].split('/')[-1:][0]
+            diskname = mount['device'].split('/')[-1]
             try:
                 newstruct[host]['mounts'][diskname] = mount
             except KeyError:

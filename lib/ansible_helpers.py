@@ -62,12 +62,13 @@ def run_custom_command(pattern, command):
     )
     return runner.run()
 
-def gen_runner(pattern):
+def gen_runner(pattern, forks=50, timeout=5):
     runner = ansible.runner.Runner(
             module_name="setup",
             module_args="",
-            forks=10,
+            forks=forks,
             pattern=pattern,
+            timeout=timeout,
     )
 
     return runner
@@ -80,7 +81,7 @@ def fetch_struct(pattern, retries=0):
         if not len(struct['dark']) == 0:
             newpattern = ':'.join(struct['dark'].keys())
             print "Retrying %s" % newpattern
-            newrunner = gen_runner(newpattern)
+            newrunner = gen_runner(newpattern, forks=10, timeout=2)
             newstruct = newrunner.run()
             for host in newstruct['contacted'].keys():
                 try:

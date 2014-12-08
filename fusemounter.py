@@ -57,7 +57,10 @@ if __name__ == "__main__":
 
     if args.cache:
         struct = load_struct(args.cache)
-        struct = flatten_ansible_struct(struct, custom_commands)
+        try:
+            struct = flatten_ansible_struct(struct, custom_commands)
+        except KeyError:
+            pass
 
     elif args.gencache:
         tempstruct = fetch_struct(args.pattern, args.retries)

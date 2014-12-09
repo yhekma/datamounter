@@ -26,6 +26,13 @@ class AnsFS(Operations):
         return splitted_path
 
     def _recursive_lookup(self, path, struct):
+        if type(struct) == list:
+            newdict = {}
+            for index, i in enumerate(struct):
+                filename = 'listitem_%s' % index
+                newdict[filename] = i
+            struct = newdict
+
         if len(path) == 0:
             return struct
 

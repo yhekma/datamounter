@@ -3,7 +3,7 @@
 import sys
 import argparse
 import ConfigParser
-from lib.datamounter import AnsFS, load_struct, save_struct
+from lib.datamounter import DataFS, load_struct, save_struct
 from lib.ansible_helpers import run_custom_command, flatten_ansible_struct, fetch_struct
 from fuse import FUSE
 
@@ -22,7 +22,7 @@ def load_ini(path):
 
 
 def main(pkl, mountpoint, f, realtime, allow_other=False):
-    FUSE(AnsFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f, ro=True)
+    FUSE(DataFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 if __name__ == "__main__":
     struct = {}

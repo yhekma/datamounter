@@ -3,7 +3,7 @@
 import sys
 import argparse
 import ConfigParser
-from lib.ansfuse import AnsFS, load_struct, save_struct
+from lib.datamounter import AnsFS, load_struct, save_struct
 from lib.ansible_helpers import run_custom_command, flatten_ansible_struct, fetch_struct
 from fuse import FUSE
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         print 'Please specify what to mount where. Use "%s -h" for help.' % sys.argv[0]
         sys.exit(1)
 
-    parser = argparse.ArgumentParser(description="Mount virtual ansible-based filesystem using Fuse")
+    parser = argparse.ArgumentParser(description="Mount virtual filesystem using json/ansible as input")
     group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
     parser.add_argument("--gen-cache", "-g", dest="gencache", default=False, help="Write a cache file at this location")
@@ -39,7 +39,7 @@ if __name__ == "__main__":
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
     parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
     parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
-    parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose", default=None)
+    parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose. Files will show up under custom_facts/.", default=None)
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
     args = parser.parse_args()

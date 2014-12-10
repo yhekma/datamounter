@@ -3,12 +3,39 @@ Datamounter
 
 FUSE filesystem populated from JSON. Optionally from ansible's setup module
 
-Usage
+Components
+-----
+ansible_fetcher.py can be used to fetch information using Ansible's setup module
+and optionally custom commands/facts. It outputs a slightly modified json file for
+use with the datamounter.py script.
+
+Usage ansible_fetcher.py
 -----
 ```
-usage: datamounter.py [-h] [--gen-cache GENCACHE]
-                      (--cache CACHE | --pattern PATTERN) [--foreground]
-                      [--retries RETRIES] [--custom CUSTOM] [--realtime]
+usage: ansible_fetcher.py [-h] [--pattern PATTERN] [--retries RETRIES] -f
+                          FILENAME [--custom CUSTOM]
+
+Fetch information from remote systems using Ansible
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --pattern PATTERN, -p PATTERN
+                        Pattern to extract info from. Needed when generating a
+                        cache file and when not using a cache file
+  --retries RETRIES, -r RETRIES
+                        Optional number of retries to contact unreachable
+                        hosts
+  -f FILENAME, --filename FILENAME
+                        Destination filename for the json data.
+  --custom CUSTOM       Optional ini file with custom commands to run on
+                        remote host which output to expose. Files will show up
+                        under custom_facts/.
+```
+
+Usage datamounter.py
+-----
+```
+usage: datamounter.py [-h] --cache CACHE [--foreground] [--realtime]
                       [--allow_other]
                       mountpoint [mountpoint ...]
 
@@ -19,20 +46,9 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --gen-cache GENCACHE, -g GENCACHE
-                        Write a cache file at this location
   --cache CACHE, -c CACHE
                         Location of the cache-file if wanted
-  --pattern PATTERN, -p PATTERN
-                        Pattern to extract info from. Needed when generating a
-                        cache file and when not using a cache file
   --foreground, -f      Run in foreground
-  --retries RETRIES, -r RETRIES
-                        Optional number of retries to contact unreachable
-                        hosts
-  --custom CUSTOM       Optional ini file with custom commands to run on
-                        remote host which output to expose. Files will show up
-                        under custom_facts/.
   --realtime            Fetch data realtime. Experimental.
   --allow_other, -a     Allow other users to read from the filesystem.
 ```
@@ -44,14 +60,15 @@ Map the pre-generated datafile stored in **dev.json** on **/opt/infra_map**:
 ```datamounter.py -c dev.json /opt/infra_map```
 
 
-Map the hosts defined in the **prod** group as defined in [ansible inventory] to **/opt/prod_map** and update the values in realtime:
+Create a json file for all the **prod** hosts as defined in [ansible inventory] and save it to **prod.json**:
 
-```datamounter.py -p prod --realtime /opt/prod_map```
+```ansible_fetcher.py -p prod -f prod.json```
 
 
 Scan the **production-env** (as defined in your [ansible inventory]), save it in **prod.json** and map in on **/opt/infra/prod**:
+Mount a generated json file named **prod.json** on /opt/infra_prod:
 
-```datamounter.py -g prod.json -p production-env -m /opt/infra_prod```
+```datamounter.py -c prod.json /opt/infra_prod```
 
 [Ansible]:http://www.ansible.com/
 [ansible inventory]:http://docs.ansible.com/intro_inventory.html

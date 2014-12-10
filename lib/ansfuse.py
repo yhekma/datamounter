@@ -1,4 +1,4 @@
-import cPickle
+import json
 import time
 import stat
 import os
@@ -107,11 +107,11 @@ class AnsFS(Operations):
 
 def load_struct(pklfile):
     f = open(pklfile, 'rb')
-    struct = cPickle.load(f)
+    struct = json.load(f)
     f.close()
     return struct
 
 def save_struct(pklfile, struct):
     f = open(pklfile, 'wb')
-    cPickle.dump(struct, f)
+    json.dump(struct, f)
     f.close()

@@ -36,9 +36,9 @@ optional arguments:
 
 Example Usage
 -----
-Map the pre-generated datafile stored in **dev.pkl** on **/opt/infra_map**:
+Map the pre-generated datafile stored in **dev.json** on **/opt/infra_map**:
 
-```fusemounter.py -c dev.pkl /opt/infra_map```
+```fusemounter.py -c dev.json /opt/infra_map```
 
 
 Map the hosts defined in the **prod** group as defined in [ansible inventory] to **/opt/prod_map** and update the values in realtime:
@@ -46,9 +46,9 @@ Map the hosts defined in the **prod** group as defined in [ansible inventory] to
 ```fusemounter.py -p prod --realtime /opt/prod_map```
 
 
-Scan the **production-env** (as defined in your [ansible inventory]), save it in **prod.pkl** and map in on **/opt/infra/prod**:
+Scan the **production-env** (as defined in your [ansible inventory]), save it in **prod.json** and map in on **/opt/infra/prod**:
 
-```ansfuse.py -g prod.pkl -p production-env -m /opt/infra_prod```
+```ansfuse.py -g prod.json -p production-env -m /opt/infra_prod```
 
 [Ansible]:http://www.ansible.com/
 [ansible inventory]:http://docs.ansible.com/intro_inventory.html

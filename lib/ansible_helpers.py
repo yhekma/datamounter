@@ -38,6 +38,13 @@ def flatten_ansible_struct(struct, custom_output=None):
                 output = custom_output[filename]['contacted'][host]['stdout']
                 newstruct[host]['custom_commands'] = {filename: output}
 
+    # Remove SSH_AUTH_SOCK from ansible_env
+    for host in newstruct.keys():
+        try:
+            newstruct[host]['ansible_env'].pop('SSH_AUTH_SOCK')
+        except KeyError:
+            pass
+
     return newstruct
 
 def get_real_data(host):

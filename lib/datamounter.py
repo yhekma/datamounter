@@ -9,12 +9,11 @@ from fuse import Operations
 uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
-class AnsFS(Operations):
+class DataFS(Operations):
     def __init__(self, struct, realtime=False):
         self.epoch_time = time.time()
         self.realtime = realtime
         self.struct = struct
-        self.fd = 0
         self.ctimedict = {}
         self.fetch_times = {}
 
@@ -77,10 +76,6 @@ class AnsFS(Operations):
             dirents.extend(path_tip.keys())
             for r in dirents:
                 yield r
-
-    def open(self, path, flags):
-        self.fd += 1
-        return self.fd
 
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)

@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-from lib.datamounter import DataFS, load_struct
+from lib.datamounter_helpers import DataFS, load_struct
 from fuse import FUSE
 
 def main(pkl, mountpoint, f, realtime, allow_other=False):

@@ -3,7 +3,11 @@
 import sys
 import argparse
 from lib.datamounter_helpers import DataFS, load_struct
-from fuse import FUSE
+try:
+    from fuse import FUSE
+except ImportError:
+    print 'Please install fusepy ("sudo pip install fusepy")'
+    sys.exit(1)
 
 def main(pkl, mountpoint, f, realtime, allow_other=False):
     FUSE(DataFS(struct, realtime), mountpoint, allow_other=allow_other, foreground=f, ro=True)

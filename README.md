@@ -64,11 +64,13 @@ Create a json file for all the **prod** hosts as defined in [ansible inventory] 
 
 ```ansible_fetcher.py -p prod -f prod.json```
 
-
-Scan the **production-env** (as defined in your [ansible inventory]), save it in **prod.json** and map in on **/opt/infra/prod**:
 Mount a generated json file named **prod.json** on /opt/infra_prod:
 
 ```datamounter.py -c prod.json /opt/infra_prod```
+
+The resulting mount will contain a directory for each host and within that directory all the gathered facts. Note that the mounts are put in <host>/mounts and that local facts (as put in /etc/ansible/facts.d) are put in <hosts>/local_facts.
+
+It is also possible to map the output of arbitrary commands using the --custom parameter. These files will be put in <host>/custom_commands
 
 [Ansible]:http://www.ansible.com/
 [ansible inventory]:http://docs.ansible.com/intro_inventory.html

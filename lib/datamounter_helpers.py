@@ -3,6 +3,7 @@ import time
 import stat
 import os
 import pwd
+import StringIO
 from ansible_helpers import get_real_data
 from fuse import Operations
 
@@ -96,9 +97,10 @@ class DataFS(Operations):
                 current_host_data = get_real_data(host)
                 self.struct[host] = current_host_data[host]
                 self.fetch_times[host] = time.time()
-
         path_tip = self._recursive_lookup(splitted_path, self.struct)
-        return "%s\n" % str(path_tip)
+        r = path_tip[offset:offset + length]
+        return r
+        # return "%s\n" % str(path_tip)
 
 def load_struct(pklfile):
     f = open(pklfile, 'rb')

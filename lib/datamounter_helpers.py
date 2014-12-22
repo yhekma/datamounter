@@ -3,7 +3,6 @@ import time
 import stat
 import os
 import pwd
-import StringIO
 from ansible_helpers import get_real_data
 from fuse import Operations
 
@@ -99,7 +98,7 @@ class DataFS(Operations):
                 self.fetch_times[host] = time.time()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
-            
+
         r = path_tip[offset:offset + length]
         return r
 
@@ -113,3 +112,14 @@ def save_struct(pklfile, struct):
     f = open(pklfile, 'wb')
     json.dump(struct, f)
     f.close()
+
+
+def gut_struct(struct):
+    if type(struct) == dict:
+        for k in struct.keys():
+            if type(struct[k]) == unicode or type(struct[k]) == int:
+                struct[k] = ''
+            if type(struct[k]) == list:
+                struct.pop(k)
+                continue
+            gut_struct(struct[k])

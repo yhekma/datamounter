@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-from lib.datamounter_helpers import DataFS, load_struct
+from lib.datamounter_helpers import DataFS, load_struct, gut_struct
 try:
     from fuse import FUSE
 except ImportError:
@@ -24,10 +24,15 @@ if __name__ == "__main__":
     parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
+    parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,
+            help="Remove all values from the datastructure, essentially leaving only the structure itself. Usefull in combination with --realtime")
     args = parser.parse_args()
     print "Loading data"
 
     struct = load_struct(args.cache)
+
+    if args.skeleton:
+        gut_struct(struct)
 
     print "done"
     main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other)

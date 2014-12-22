@@ -3,7 +3,7 @@
 import argparse
 import ConfigParser
 from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command
-from lib.datamounter_helpers import save_struct
+from lib.datamounter_helpers import save_struct, gut_struct
 
 def load_ini(path):
     config = ConfigParser.RawConfigParser()
@@ -25,6 +25,8 @@ if __name__ == '__main__':
     parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
     parser.add_argument("-f", "--filename", dest="filename", required=True, help="Destination filename for the json data.")
     parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose. Files will show up under custom_facts/.", default=None)
+    parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,
+            help="Remove all values from the datastructure, essentially leaving only the structure itself. Usefull in combination with --realtime")
     args = parser.parse_args()
 
     if args.custom:
@@ -39,4 +41,6 @@ if __name__ == '__main__':
 
     tempstruct = fetch_struct(args.pattern, args.retries)
     struct = flatten_ansible_struct(tempstruct, custom_commands)
+    if args.skeleton:
+        gut_struct(struct)
     save_struct(args.filename, struct)

@@ -94,9 +94,10 @@ class DataFS(Operations):
                     pass
 
                 else:
-                    current_host_data = get_real_data(host, old_custom_commands)
-                    self.struct[host] = current_host_data[host]
-                    self.fetch_times[host] = time.time()
+                    if host in self.struct.keys():
+                        current_host_data = get_real_data(host, old_custom_commands)
+                        self.struct[host] = current_host_data[host]
+                        self.fetch_times[host] = time.time()
 
             elif 'stdout' in splitted_path:
                 if int(time.time() - self.fetch_times[host]) < 10:

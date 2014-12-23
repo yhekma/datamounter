@@ -109,6 +109,7 @@ class DataFS(Operations):
                     cmd = str(self._recursive_lookup(splitted_cmd_path, self.struct)) + "\n"
                     output = {host: run_custom_command(host, cmd)}[host]['contacted']
                     self.struct[host]['custom_commands'][filename] = output[host]
+                    self.fetch_times[host] = time.time()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
         r = path_tip[offset:offset + length]

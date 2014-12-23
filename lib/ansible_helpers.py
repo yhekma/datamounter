@@ -36,7 +36,10 @@ def flatten_ansible_struct(struct, custom_output=None):
         for filename in custom_output.keys():
             for host in custom_output[filename]['contacted'].keys():
                 output = custom_output[filename]['contacted'][host]['stdout']
-                newstruct[host]['custom_commands'] = {filename: output}
+                try:
+                    newstruct[host]['custom_commands'][filename] = output
+                except KeyError:
+                    newstruct[host]['custom_commands'] = {filename: output}
 
     # Remove SSH_AUTH_SOCK from ansible_env
     for host in newstruct.keys():

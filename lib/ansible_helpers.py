@@ -35,7 +35,7 @@ def flatten_ansible_struct(struct, custom_output=None):
     if custom_output:
         for filename in custom_output.keys():
             for host in custom_output[filename]['contacted'].keys():
-                output = custom_output[filename]['contacted'][host]['stdout']
+                output = custom_output[filename]['contacted'][host]
                 try:
                     newstruct[host]['custom_commands'][filename] = output
                 except KeyError:
@@ -50,7 +50,7 @@ def flatten_ansible_struct(struct, custom_output=None):
 
     return newstruct
 
-def get_real_data(host):
+def get_real_data(host, custom_commands=None):
     runner = ansible.runner.Runner(
             module_name="setup",
             module_args="",
@@ -60,7 +60,10 @@ def get_real_data(host):
     data = runner.run()
 
     try:
-        return flatten_ansible_struct(data)
+        struct = flatten_ansible_struct(data)
+        if custom_commands:
+            struct[host]['custom_commands'] = custom_commands
+        return struct
     except KeyError:
         pass
 

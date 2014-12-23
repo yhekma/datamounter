@@ -3,7 +3,7 @@ import time
 import stat
 import os
 import pwd
-from ansible_helpers import get_real_data
+from ansible_helpers import get_real_data, run_custom_command, flatten_ansible_struct
 from fuse import Operations
 
 uid = pwd.getpwuid(os.getuid()).pw_uid
@@ -80,25 +80,41 @@ class DataFS(Operations):
     def read(self, path, length, offset, fh):
         splitted_path = self._split_path(path)
 
-        if self.realtime and not "custom_commands" in splitted_path:
+        if self.realtime:
             host = splitted_path[0]
+            if not "custom_commands" in splitted_path:
+                try:
+                    old_custom_commands = self.struct[host]['custom_commands']
+                except KeyError:
+                    old_custom_commands = None
 
-            try:
-                if int(time.time() - self.fetch_times[host]) < 10:
-                    pass
+                try:
+                    if int(time.time() - self.fetch_times[host]) < 10:
+                        pass
 
-                else:
-                    current_host_data = get_real_data(host)
-                    self.struct[host] = current_host_data[host]
-                    self.fetch_times[host] = time.time()
+                    else:
+                        current_host_data = get_real_data(host, old_custom_commands)
+                        self.struct[host] = current_host_data[host]
 
-            except KeyError:
-                current_host_data = get_real_data(host)
-                self.struct[host] = current_host_data[host]
-                self.fetch_times[host] = time.time()
+                        self.fetch_times[host] = time.time()
+
+                except KeyError:
+                    try:
+                        current_host_data = get_real_data(host, old_custom_commands)
+                        self.struct[host] = current_host_data[host]
+                        self.fetch_times[host] = time.time()
+                    except KeyError:
+                        pass
+
+            elif 'stdout' in splitted_path:
+                splitted_cmd_path = splitted_path[:splitted_path.index('custom_commands') + 2]
+                filename = splitted_cmd_path[-1:][0]
+                splitted_cmd_path.append('cmd')
+                cmd = str(self._recursive_lookup(splitted_cmd_path, self.struct)) + "\n"
+                output = {host: run_custom_command(host, cmd)}[host]['contacted']
+                self.struct[host]['custom_commands'][filename] = output[host]
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
-
         r = path_tip[offset:offset + length]
         return r
 

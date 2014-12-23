@@ -2,7 +2,9 @@
 
 import sys
 import argparse
-from lib.datamounter_helpers import DataFS, load_struct, gut_struct
+from lib.datamounter_helpers import DataFS, load_struct
+from lib.ansible_helpers import gut_struct
+
 try:
     from fuse import FUSE
 except ImportError:

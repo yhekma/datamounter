@@ -2,8 +2,8 @@
 
 import argparse
 import ConfigParser
-from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command
-from lib.datamounter_helpers import save_struct, gut_struct
+from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct
+from lib.datamounter_helpers import save_struct
 
 def load_ini(path):
     config = ConfigParser.RawConfigParser()

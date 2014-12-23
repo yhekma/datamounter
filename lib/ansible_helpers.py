@@ -108,3 +108,15 @@ def fetch_struct(pattern, retries=0):
                 struct['contacted'][host] = newstruct['contacted'][host]
 
     return struct
+
+def gut_struct(struct):
+    if type(struct) == dict:
+        for k in struct.keys():
+            if k == 'cmd':
+                continue
+            if type(struct[k]) == unicode or type(struct[k]) == int:
+                struct[k] = ''
+            if type(struct[k]) == list:
+                struct.pop(k)
+                continue
+            gut_struct(struct[k])

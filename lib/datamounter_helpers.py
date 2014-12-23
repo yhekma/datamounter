@@ -125,16 +125,3 @@ def save_struct(pklfile, struct):
     f = open(pklfile, 'wb')
     json.dump(struct, f)
     f.close()
-
-
-def gut_struct(struct):
-    if type(struct) == dict:
-        for k in struct.keys():
-            if k == 'cmd':
-                continue
-            if type(struct[k]) == unicode or type(struct[k]) == int:
-                struct[k] = ''
-            if type(struct[k]) == list:
-                struct.pop(k)
-                continue
-            gut_struct(struct[k])

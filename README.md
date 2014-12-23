@@ -13,7 +13,7 @@ Usage ansible_fetcher.py
 -----
 ```
 usage: ansible_fetcher.py [-h] [--pattern PATTERN] [--retries RETRIES] -f
-                          FILENAME [--custom CUSTOM]
+                          FILENAME [--custom CUSTOM] [--skeleton]
 
 Fetch information from remote systems using Ansible
 
@@ -30,27 +30,35 @@ optional arguments:
   --custom CUSTOM       Optional ini file with custom commands to run on
                         remote host which output to expose. Files will show up
                         under custom_facts/.
+  --skeleton, -s        Remove all values from the datastructure, essentially
+                        leaving only the structure itself. Usefull in
+                        combination with --realtime
 ```
 
 Usage datamounter.py
 -----
 ```
-usage: datamounter.py [-h] --cache CACHE [--foreground] [--realtime]
-                      [--allow_other]
-                      mountpoint [mountpoint ...]
+usage: ansible_fetcher.py [-h] [--pattern PATTERN] [--retries RETRIES] -f
+                          FILENAME [--custom CUSTOM] [--skeleton]
 
-Mount virtual filesystem using json/ansible as input
-
-positional arguments:
-  mountpoint            Where to mount the filesystem
+Fetch information from remote systems using Ansible
 
 optional arguments:
   -h, --help            show this help message and exit
-  --cache CACHE, -c CACHE
-                        Location of the cache-file if wanted
-  --foreground, -f      Run in foreground
-  --realtime            Fetch data realtime. Experimental.
-  --allow_other, -a     Allow other users to read from the filesystem.
+  --pattern PATTERN, -p PATTERN
+                        Pattern to extract info from. Needed when generating a
+                        cache file and when not using a cache file
+  --retries RETRIES, -r RETRIES
+                        Optional number of retries to contact unreachable
+                        hosts
+  -f FILENAME, --filename FILENAME
+                        Destination filename for the json data.
+  --custom CUSTOM       Optional ini file with custom commands to run on
+                        remote host which output to expose. Files will show up
+                        under custom_facts/.
+  --skeleton, -s        Remove all values from the datastructure, essentially
+                        leaving only the structure itself. Useful in
+                        combination with --realtime
 ```
 
 Example Usage

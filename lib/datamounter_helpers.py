@@ -3,7 +3,7 @@ import time
 import stat
 import os
 import pwd
-from ansible_helpers import get_real_data, run_custom_command, flatten_ansible_struct
+from ansible_helpers import get_real_data, run_custom_command
 from fuse import Operations
 
 uid = pwd.getpwuid(os.getuid()).pw_uid

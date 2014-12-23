@@ -35,6 +35,9 @@ def flatten_ansible_struct(struct, custom_output=None):
     if custom_output:
         for filename in custom_output.keys():
             for host in custom_output[filename]['contacted'].keys():
+                if not host in newstruct.keys():
+                    continue
+
                 output = custom_output[filename]['contacted'][host]
                 try:
                     newstruct[host]['custom_commands'][filename] = output

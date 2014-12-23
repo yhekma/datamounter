@@ -129,6 +129,8 @@ def save_struct(pklfile, struct):
 def gut_struct(struct):
     if type(struct) == dict:
         for k in struct.keys():
+            if k == 'cmd':
+                continue
             if type(struct[k]) == unicode or type(struct[k]) == int:
                 struct[k] = ''
             if type(struct[k]) == list:

@@ -73,7 +73,7 @@ def get_real_data(host, custom_commands=None):
     except KeyError:
         pass
 
-def run_custom_command(host, command, run_pattern, skeleton=None):
+def run_custom_command(host, command, run_pattern='', skeleton=None):
     inventory = ansible.inventory.Inventory()
     run_host_inventory = [i.name for i in inventory.get_hosts(run_pattern)]
     custom_inventory = [i.name for i in inventory.get_hosts(host)]
@@ -87,18 +87,19 @@ def run_custom_command(host, command, run_pattern, skeleton=None):
 
     if skeleton:
         ret_dict = {}
-        try:
-            ret_dict['contacted'][host] = {
-                'cmd': command,
-                'stdout': '',
-            }
-        except KeyError:
-            ret_dict['contacted'] = {
-                    host: {
-                        'cmd': command,
-                        'stdout': '',
-                    }
-            }
+        for h in new_pattern:
+            try:
+                ret_dict['contacted'][h] = {
+                    'cmd': command,
+                    'stdout': '',
+                }
+            except KeyError:
+                ret_dict['contacted'] = {
+                        h: {
+                            'cmd': command,
+                            'stdout': '',
+                        }
+                }
         return ret_dict
 
     runner = ansible.runner.Runner(

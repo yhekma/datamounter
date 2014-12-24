@@ -31,7 +31,7 @@ optional arguments:
                         remote host which output to expose. Files will show up
                         under custom_facts/.
   --skeleton, -s        Remove all values from the datastructure, essentially
-                        leaving only the structure itself. Usefull in
+                        leaving only the structure itself. Useful in
                         combination with --realtime
 ```
 

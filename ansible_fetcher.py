@@ -34,7 +34,7 @@ if __name__ == '__main__':
         custom_commands = {}
         for host in cust_input.keys():
             for filename in cust_input[host].keys():
-                custom_commands[filename] = run_custom_command(host, cust_input[host][filename], args.skeleton)
+                custom_commands[filename] = run_custom_command(host, cust_input[host][filename], args.pattern, args.skeleton)
 
     else:
         custom_commands = None

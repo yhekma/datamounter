@@ -1,4 +1,5 @@
 import ansible.runner
+import ansible.inventory
 
 def flatten_ansible_struct(struct, custom_output=None):
     newstruct = {}
@@ -33,6 +34,8 @@ def flatten_ansible_struct(struct, custom_output=None):
         newstruct[host].pop('ansible_mounts')
 
     if custom_output:
+        # Remove empty dicts
+        [custom_output.pop(i) for i in custom_output.keys() if custom_output[i] == {}]
         for filename in custom_output.keys():
             for host in custom_output[filename]['contacted'].keys():
                 if not host in newstruct.keys():
@@ -70,7 +73,12 @@ def get_real_data(host, custom_commands=None):
     except KeyError:
         pass
 
-def run_custom_command(host, command, skeleton=None):
+def run_custom_command(host, command, run_pattern, skeleton=None):
+    inventory = ansible.inventory.Inventory()
+    run_host_inventory = [i.name for i in inventory.get_hosts(run_pattern)]
+    if host not in run_host_inventory:
+        return {}
+
     if skeleton:
         return {'contacted': {
             host: {

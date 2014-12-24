@@ -76,8 +76,14 @@ def get_real_data(host, custom_commands=None):
 def run_custom_command(host, command, run_pattern, skeleton=None):
     inventory = ansible.inventory.Inventory()
     run_host_inventory = [i.name for i in inventory.get_hosts(run_pattern)]
-    if host not in run_host_inventory:
-        return {}
+    custom_inventory = [i.name for i in inventory.get_hosts(host)]
+    new_pattern = []
+
+    for run_host in custom_inventory:
+        if run_host in run_host_inventory:
+            new_pattern.append(run_host)
+
+    host = ':'.join(new_pattern)
 
     if skeleton:
         return {'contacted': {

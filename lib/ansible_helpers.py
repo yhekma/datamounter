@@ -86,12 +86,20 @@ def run_custom_command(host, command, run_pattern, skeleton=None):
     host = ':'.join(new_pattern)
 
     if skeleton:
-        return {'contacted': {
-            host: {
+        ret_dict = {}
+        try:
+            ret_dict['contacted'][host] = {
                 'cmd': command,
                 'stdout': '',
-                }
-        }}
+            }
+        except KeyError:
+            ret_dict['contacted'] = {
+                    host: {
+                        'cmd': command,
+                        'stdout': '',
+                    }
+            }
+        return ret_dict
 
     runner = ansible.runner.Runner(
             module_name="shell",

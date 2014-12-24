@@ -70,11 +70,19 @@ def get_real_data(host, custom_commands=None):
     except KeyError:
         pass
 
-def run_custom_command(pattern, command):
+def run_custom_command(host, command, skeleton=None):
+    if skeleton:
+        return {'contacted': {
+            host: {
+                'cmd': command,
+                'stdout': '',
+                }
+        }}
+
     runner = ansible.runner.Runner(
             module_name="shell",
             module_args=command,
-            pattern=pattern,
+            pattern=host,
     )
     return runner.run()
 

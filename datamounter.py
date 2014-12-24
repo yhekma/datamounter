@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
     parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,
-            help="Remove all values from the datastructure, essentially leaving only the structure itself. Usefull in combination with --realtime")
+            help="Remove all values from the datastructure, essentially leaving only the structure itself. Useful in combination with --realtime")
     args = parser.parse_args()
     print "Loading data"
 

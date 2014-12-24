@@ -22,7 +22,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Fetch information from remote systems using Ansible")
     parser.add_argument("--pattern", "-p", dest="pattern", default=False,
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
-    parser.add_argument("--retries", "-r", dest="retries", default=0, required=False, help="Optional number of retries to contact unreachable hosts")
+    parser.add_argument("--retries", "-r", dest="retries", default=3, required=False, help="Optional number of retries to contact unreachable hosts")
     parser.add_argument("-f", "--filename", dest="filename", required=True, help="Destination filename for the json data.")
     parser.add_argument("--custom", required=False, help="Optional ini file with custom commands to run on remote host which output to expose. Files will show up under custom_facts/.", default=None)
     parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,

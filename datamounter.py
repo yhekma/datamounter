@@ -22,8 +22,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Mount virtual filesystem using json/ansible as input")
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
-    parser.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file if wanted")
-    parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground")
+    parser.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file.")
+    parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground", required=False)
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
     parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,

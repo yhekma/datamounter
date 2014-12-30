@@ -20,7 +20,7 @@ def load_ini(path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Fetch information from remote systems using Ansible")
-    parser.add_argument("--pattern", "-p", dest="pattern", default=False,
+    parser.add_argument("--pattern", "-p", dest="pattern", default=False, required=True,
             help="Pattern to extract info from. Needed when generating a cache file and when not using a cache file")
     parser.add_argument("--retries", "-r", dest="retries", default=3, required=False, help="Optional number of retries to contact unreachable hosts")
     parser.add_argument("-f", "--filename", dest="filename", required=True, help="Destination filename for the json data.")

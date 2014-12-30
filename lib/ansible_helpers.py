@@ -37,6 +37,9 @@ def flatten_ansible_struct(struct, custom_output=None):
         # Remove empty dicts
         [custom_output.pop(i) for i in custom_output.keys() if custom_output[i] == {}]
         for filename in custom_output.keys():
+            if not custom_output[filename]:
+                continue
+
             for host in custom_output[filename]['contacted'].keys():
                 if not host in newstruct.keys():
                     continue
@@ -82,6 +85,9 @@ def run_custom_command(host, command, run_pattern='', skeleton=None):
     for run_host in custom_inventory:
         if run_host in run_host_inventory:
             new_pattern.append(run_host)
+
+    if not new_pattern:
+        return None
 
     host = ':'.join(new_pattern)
 

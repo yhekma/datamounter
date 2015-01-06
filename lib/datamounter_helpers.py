@@ -17,8 +17,10 @@ class DataFS(Operations):
         self.ctimedict = {}
         self.fetch_times = {}
         if cleanup:
+            import threading
             from cleanup_thread import cleanup_thread
-            ct = cleanup_thread(45, self.struct)
+            self.lock = threading.Lock()
+            ct = cleanup_thread(45, self.struct, self.lock)
             ct.run()
 
     def _split_path(self, path):
@@ -92,11 +94,14 @@ class DataFS(Operations):
             self.fetch_times[host] = 0
 
         if self.realtime:
+            self.lock.acquire()
             if not "custom_commands" in splitted_path:
                 try:
                     old_custom_commands = self.struct[host]['custom_commands']
                 except KeyError:
                     old_custom_commands = None
+                finally:
+                    self.lock.release()
 
                 if int(time.time() - self.fetch_times[host]) < 10:
                     pass
@@ -108,6 +113,7 @@ class DataFS(Operations):
                         self.fetch_times[host] = time.time()
 
             elif 'stdout' in splitted_path:
+                self.lock.acquire()
                 if int(time.time() - self.fetch_times[host]) < 10:
                     pass
                 else:
@@ -118,6 +124,7 @@ class DataFS(Operations):
                     output = {host: run_custom_command(host, cmd)}[host]['contacted']
                     self.struct[host]['custom_commands'][filename] = output[host]
                     self.fetch_times[host] = time.time()
+                self.lock.release()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
         r = path_tip[offset:offset + length]

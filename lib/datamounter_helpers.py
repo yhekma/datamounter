@@ -10,7 +10,8 @@ uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
 class DataFS(Operations):
-    def __init__(self, struct, realtime=False, cleanup=False):
+    def __init__(self, struct, realtime=False, utime=10, cleanup=False):
+        self.utime = utime
         self.epoch_time = time.time()
         self.realtime = realtime
         self.struct = struct
@@ -103,7 +104,7 @@ class DataFS(Operations):
                 finally:
                     self.lock.release()
 
-                if int(time.time() - self.fetch_times[host]) < 10:
+                if int(time.time() - self.fetch_times[host]) < self.utime:
                     pass
 
                 else:
@@ -114,7 +115,7 @@ class DataFS(Operations):
 
             elif 'stdout' in splitted_path:
                 self.lock.acquire()
-                if int(time.time() - self.fetch_times[host]) < 10:
+                if int(time.time() - self.fetch_times[host]) < self.utime:
                     pass
                 else:
                     splitted_cmd_path = splitted_path[:splitted_path.index('custom_commands') + 2]

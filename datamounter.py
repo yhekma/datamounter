@@ -11,8 +11,8 @@ except ImportError:
     print 'Please install fusepy ("sudo pip install fusepy")'
     sys.exit(1)
 
-def main(pkl, mountpoint, f, realtime, allow_other=False, cleanup=False):
-    FUSE(DataFS(struct, realtime, cleanup), mountpoint, allow_other=allow_other, foreground=f, ro=True)
+def main(pkl, mountpoint, f, realtime, allow_other=False, utime=10, cleanup=False):
+    FUSE(DataFS(struct, realtime, utime, cleanup), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 if __name__ == "__main__":
     struct = {}
@@ -24,11 +24,12 @@ if __name__ == "__main__":
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
     parser.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file.")
     parser.add_argument("--foreground", "-f", action="store_true", default=False, dest="foreground", help="Run in foreground", required=False)
-    parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--allow_other", "-a", action="store_true", required=False, help="Allow other users to read from the filesystem.", dest="allow_other", default=False)
     parser.add_argument("--skeleton", "-s", action="store_true", required=False, default=False,
             help="Remove all values from the datastructure, essentially leaving only the structure itself. Useful in combination with --realtime")
-    parser.add_argument("--cleanup", action="store_true", required=False, default=False, help="Optionally enable a timer that cleans up collected data when using --realtime. Runs every 45 seconds")
+    parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
+    parser.add_argument("--updatetime", dest="utime", required=False, type=int, default=10,
+            help="Optionally tell the mounter how long the contents of files will be cached after which the fact is retrieved again. To be used with --realtime. Defaults to 10 seconds")
     args = parser.parse_args()
     print "Loading data"
 
@@ -39,6 +40,6 @@ if __name__ == "__main__":
 
     print "done"
     try:
-        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.cleanup)
+        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.utime, cleanup=True)
     except KeyboardInterrupt:
         sys.exit()

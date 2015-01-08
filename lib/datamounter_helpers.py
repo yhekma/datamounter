@@ -92,6 +92,9 @@ class DataFS(Operations):
             self.fetch_times[host] = 0
 
         if self.realtime:
+            if self.cleanup:
+                self.lock.acquire()
+
             if not "custom_commands" in splitted_path:
                 try:
                     old_custom_commands = self.struct[host]['custom_commands']
@@ -122,8 +125,8 @@ class DataFS(Operations):
                     self.struct[host]['custom_commands'][filename] = output[host]
                     self.fetch_times[host] = time.time()
 
-                if self.cleanup:
-                    self.lock.release()
+        if self.cleanup:
+            self.lock.release()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
         r = path_tip[offset:offset + length]

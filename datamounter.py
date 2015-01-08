@@ -11,8 +11,8 @@ except ImportError:
     print 'Please install fusepy ("sudo pip install fusepy")'
     sys.exit(1)
 
-def main(pkl, mountpoint, f, realtime, allow_other=False, utime=10, cleanup=False):
-    FUSE(DataFS(struct, realtime, utime, cleanup), mountpoint, allow_other=allow_other, foreground=f, ro=True)
+def main(pkl, mountpoint, f, realtime, allow_other=False, utime=10):
+    FUSE(DataFS(struct, realtime, utime), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 if __name__ == "__main__":
     struct = {}
@@ -30,6 +30,7 @@ if __name__ == "__main__":
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime. Experimental.", dest="realtime", default=False)
     parser.add_argument("--updatetime", dest="utime", required=False, type=int, default=10,
             help="Optionally tell the mounter how long the contents of files will be cached after which the fact is retrieved again. To be used with --realtime. Defaults to 10 seconds")
+
     args = parser.parse_args()
     print "Loading data"
 
@@ -40,6 +41,6 @@ if __name__ == "__main__":
 
     print "done"
     try:
-        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.utime, cleanup=True)
+        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.utime)
     except KeyboardInterrupt:
         sys.exit()

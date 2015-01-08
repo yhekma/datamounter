@@ -3,24 +3,20 @@ import time
 import stat
 import os
 import pwd
-from ansible_helpers import get_real_data, run_custom_command, gut_struct
+from ansible_helpers import get_real_data, run_custom_command
 from fuse import Operations
 
 uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
 class DataFS(Operations):
-    def __init__(self, struct, realtime=False, utime=10, cleanup=False):
+    def __init__(self, struct, realtime=False, utime=10):
         self.utime = utime
         self.epoch_time = time.time()
         self.realtime = realtime
         self.struct = struct
         self.ctimedict = {}
         self.fetch_times = {}
-        if cleanup:
-            from cleanup_thread import cleanup_thread
-            ct = cleanup_thread(45, self.struct)
-            ct.run()
 
     def _split_path(self, path):
         splitted_path = path.split('/')
@@ -28,10 +24,6 @@ class DataFS(Operations):
             splitted_path.remove('')
 
         return splitted_path
-
-    def _run_and_schedule_cleanup(self):
-        gut_struct(self.struct)
-        self.timer.start()
 
     def _recursive_lookup(self, path, struct):
         if type(struct) == list:

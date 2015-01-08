@@ -10,13 +10,20 @@ uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
 class DataFS(Operations):
-    def __init__(self, struct, realtime=False, utime=10):
+    def __init__(self, struct, realtime=False, utime=10, cleanup=False):
+        self.cleanup = cleanup
         self.utime = utime
         self.epoch_time = time.time()
         self.realtime = realtime
         self.struct = struct
         self.ctimedict = {}
         self.fetch_times = {}
+        if cleanup:
+            import threading
+            from cleanup_thread import cleanup_thread
+            self.lock = threading.Lock()
+            ct = cleanup_thread(3, self.struct, self.lock)
+            ct.run()
 
     def _split_path(self, path):
         splitted_path = path.split('/')
@@ -101,6 +108,9 @@ class DataFS(Operations):
                         self.fetch_times[host] = time.time()
 
             elif 'stdout' in splitted_path:
+                if self.cleanup:
+                    self.lock.acquire()
+
                 if int(time.time() - self.fetch_times[host]) < self.utime:
                     pass
                 else:
@@ -111,6 +121,9 @@ class DataFS(Operations):
                     output = {host: run_custom_command(host, cmd)}[host]['contacted']
                     self.struct[host]['custom_commands'][filename] = output[host]
                     self.fetch_times[host] = time.time()
+
+                if self.cleanup:
+                    self.lock.release()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
         r = path_tip[offset:offset + length]

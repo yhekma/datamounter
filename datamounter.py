@@ -11,8 +11,8 @@ except ImportError:
     print 'Please install fusepy ("sudo pip install fusepy")'
     sys.exit(1)
 
-def main(pkl, mountpoint, f, realtime, allow_other=False, utime=10):
-    FUSE(DataFS(struct, realtime, utime), mountpoint, allow_other=allow_other, foreground=f, ro=True)
+def main(pkl, mountpoint, f, realtime, allow_other, utime, cleanup):
+    FUSE(DataFS(struct, realtime, utime, cleanup), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 if __name__ == "__main__":
     struct = {}
@@ -40,7 +40,12 @@ if __name__ == "__main__":
         gut_struct(struct)
 
     print "done"
+    if args.realtime:
+        cleanup = True
+    else:
+        cleanup = False
+
     try:
-        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.utime)
+        main(struct, args.mountpoint[0], args.foreground, args.realtime, args.allow_other, args.utime, cleanup)
     except KeyboardInterrupt:
         sys.exit()

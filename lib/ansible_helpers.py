@@ -1,3 +1,4 @@
+import json
 import ansible.runner
 import ansible.inventory
 
@@ -60,12 +61,13 @@ def flatten_ansible_struct(struct, custom_output=None):
 
     return newstruct
 
+
 def get_real_data(host, custom_commands=None):
     runner = ansible.runner.Runner(
-            module_name="setup",
-            module_args="",
-            forks=1,
-            pattern=host,
+        module_name="setup",
+        module_args="",
+        forks=1,
+        pattern=host,
     )
     data = runner.run()
 
@@ -76,6 +78,7 @@ def get_real_data(host, custom_commands=None):
         return struct
     except KeyError:
         pass
+
 
 def run_custom_command(host, command, run_pattern='', skeleton=None):
     inventory = ansible.inventory.Inventory()
@@ -102,30 +105,32 @@ def run_custom_command(host, command, run_pattern='', skeleton=None):
                 }
             except KeyError:
                 ret_dict['contacted'] = {
-                        h: {
-                            'cmd': command,
-                            'stdout': '',
-                        }
+                    h: {
+                        'cmd': command,
+                        'stdout': '',
+                    }
                 }
         return ret_dict
 
     runner = ansible.runner.Runner(
-            module_name="shell",
-            module_args=command,
-            pattern=host,
+        module_name="shell",
+        module_args=command,
+        pattern=host,
     )
     return runner.run()
 
+
 def gen_runner(pattern, forks=50, timeout=5):
     runner = ansible.runner.Runner(
-            module_name="setup",
-            module_args="",
-            forks=forks,
-            pattern=pattern,
-            timeout=timeout,
+        module_name="setup",
+        module_args="",
+        forks=forks,
+        pattern=pattern,
+        timeout=timeout,
     )
 
     return runner
+
 
 def fetch_struct(pattern, retries=0):
     runner = gen_runner(pattern)
@@ -147,6 +152,7 @@ def fetch_struct(pattern, retries=0):
 
     return struct
 
+
 def gut_struct(struct):
     if type(struct) == dict:
         for k in struct.keys():
@@ -158,3 +164,9 @@ def gut_struct(struct):
                 struct.pop(k)
                 continue
             gut_struct(struct[k])
+
+
+def save_struct(pklfile, struct):
+    f = open(pklfile, 'wb')
+    json.dump(struct, f)
+    f.close()

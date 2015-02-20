@@ -1,6 +1,7 @@
 import ansible.runner
 import ansible.inventory
 
+
 def flatten_ansible_struct(struct, custom_output=None):
     newstruct = {}
     tempstruct = {}

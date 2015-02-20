@@ -9,6 +9,7 @@ from fuse import Operations
 uid = pwd.getpwuid(os.getuid()).pw_uid
 gid = pwd.getpwuid(os.getuid()).pw_gid
 
+
 class DataFS(Operations):
     def __init__(self, struct, realtime=False, utime=10, cleanup=False):
         self.cleanup = cleanup
@@ -21,16 +22,10 @@ class DataFS(Operations):
         if cleanup:
             import threading
             from cleanup_thread import cleanup_thread
+
             self.lock = threading.Lock()
             ct = cleanup_thread(3, self.struct, self.lock)
             ct.run()
-
-    def _split_path(self, path):
-        splitted_path = path.split('/')
-        while '' in splitted_path:
-            splitted_path.remove('')
-
-        return splitted_path
 
     def _recursive_lookup(self, path, struct):
         if type(struct) == list:
@@ -53,7 +48,7 @@ class DataFS(Operations):
             return None
 
     def getattr(self, path, fh=None):
-        splitted_path = self._split_path(path)
+        splitted_path = split_path(path)
         val = self._recursive_lookup(splitted_path, self.struct)
 
         if type(val) == dict:
@@ -68,11 +63,12 @@ class DataFS(Operations):
         except KeyError:
             ctime = self.epoch_time
 
-        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_mode': s, 'st_size': size, 'st_gid': gid, 'st_uid': uid, 'st_atime': 1.1}
+        return {'st_ctime': self.epoch_time, 'st_mtime': ctime, 'st_mode': s, 'st_size': size, 'st_gid': gid,
+                'st_uid': uid, 'st_atime': 1.1}
 
     def readdir(self, path, fh):
         dirents = ['.', '..']
-        splitted_path = self._split_path(path)
+        splitted_path = split_path(path)
         path_tip = self._recursive_lookup(splitted_path, self.struct)
 
         if len(splitted_path) == 0:
@@ -86,16 +82,16 @@ class DataFS(Operations):
                 yield r
 
     def read(self, path, length, offset, fh):
-        splitted_path = self._split_path(path)
+        splitted_path = split_path(path)
         host = splitted_path[0]
-        if not host in self.fetch_times.keys():
+        if host not in self.fetch_times.keys():
             self.fetch_times[host] = 0
 
         if self.realtime:
             if self.cleanup:
                 self.lock.acquire()
 
-            if not "custom_commands" in splitted_path:
+            if "custom_commands" not in splitted_path:
                 try:
                     old_custom_commands = self.struct[host]['custom_commands']
                 except KeyError:
@@ -132,13 +128,23 @@ class DataFS(Operations):
         r = path_tip[offset:offset + length]
         return r
 
+
 def load_struct(pklfile):
     f = open(pklfile, 'rb')
     struct = json.load(f)
     f.close()
     return struct
 
+
 def save_struct(pklfile, struct):
     f = open(pklfile, 'wb')
     json.dump(struct, f)
     f.close()
+
+
+def split_path(path):
+    splitted_path = path.split('/')
+    while '' in splitted_path:
+        splitted_path.remove('')
+
+    return splitted_path

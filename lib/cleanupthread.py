@@ -2,7 +2,8 @@ import threading
 from time import sleep
 from ansible_helpers import gut_struct
 
-class cleanup_thread(threading.Thread):
+
+class CleanupThread(threading.Thread):
     def __init__(self, sleeptime, struct, lock):
         threading.Thread.__init__(self)
         self.sleeptime = sleeptime

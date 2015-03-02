@@ -24,10 +24,10 @@ class DataFS(Operations):
         self.fetch_times = {}
         if cleanup:
             import threading
-            from cleanup_thread import cleanup_thread
+            from cleanupthread import CleanupThread
 
             self.lock = threading.Lock()
-            ct = cleanup_thread(3, self.struct, self.lock)
+            ct = CleanupThread(3, self.struct, self.lock)
             ct.run()
 
     def _recursive_lookup(self, path, struct):

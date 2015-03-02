@@ -43,7 +43,7 @@ def flatten_ansible_struct(struct, custom_output=None):
                 continue
 
             for host in custom_output[filename]['contacted'].keys():
-                if not host in newstruct.keys():
+                if host not in newstruct.keys():
                     continue
 
                 output = custom_output[filename]['contacted'][host]

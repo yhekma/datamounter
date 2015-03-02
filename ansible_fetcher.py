@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-import argparse
+try:
+    import argparse
+except ImportError:
+    import argparse_local as argparse
 import ConfigParser
 from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
 
@@ -9,12 +12,12 @@ def load_ini(path):
     config = ConfigParser.RawConfigParser()
     config.read(path)
     result = {}
-    for host in config.sections():
-        for item in config.items(host):
+    for h in config.sections():
+        for item in config.items(h):
             try:
-                result[host][item[0]] = item[1]
+                result[h][item[0]] = item[1]
             except KeyError:
-                result[host] = {item[0]: item[1]}
+                result[h] = {item[0]: item[1]}
 
     return result
 

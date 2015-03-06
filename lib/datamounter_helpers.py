@@ -3,7 +3,10 @@ import time
 import stat
 import os
 import pwd
-from fuse import Operations
+try:
+    from fuse import Operations
+except ImportError:
+    from lib.fuse_local import Operations
 from ansible_helpers import get_real_data, run_custom_command
 
 

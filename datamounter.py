@@ -11,8 +11,7 @@ from lib.ansible_helpers import gut_struct
 try:
     from fuse import FUSE
 except ImportError:
-    print 'Please install fusepy ("sudo pip install fusepy")'
-    sys.exit(1)
+    from lib.fuse_local import FUSE
 
 
 def main(datastruct, mountpoint, f, realtime, allow_other, utime, clean):

@@ -38,27 +38,33 @@ optional arguments:
 Usage datamounter.py
 -----
 ```
-usage: ansible_fetcher.py [-h] [--pattern PATTERN] [--retries RETRIES] -f
-                          FILENAME [--custom CUSTOM] [--skeleton]
+usage: datamounter.py [-h] --cache CACHE [--updatetime UTIME] [--foreground]
+                      [--allow_other] [--skeleton] [--realtime]
+                      [--disable-cleanup]
+                      mountpoint [mountpoint ...]
 
-Fetch information from remote systems using Ansible
+Mount virtual filesystem using json/ansible as input
+
+positional arguments:
+  mountpoint            Where to mount the filesystem
 
 optional arguments:
   -h, --help            show this help message and exit
-  --pattern PATTERN, -p PATTERN
-                        Pattern to extract info from. Needed when generating a
-                        cache file and when not using a cache file
-  --retries RETRIES, -r RETRIES
-                        Optional number of retries to contact unreachable
-                        hosts
-  -f FILENAME, --filename FILENAME
-                        Destination filename for the json data.
-  --custom CUSTOM       Optional ini file with custom commands to run on
-                        remote host which output to expose. Files will show up
-                        under custom_facts/.
+  --cache CACHE, -c CACHE
+                        Location of the cache-file.
+  --updatetime UTIME    Optionally tell the mounter how long the contents of
+                        files will be cached after which the fact is retrieved
+                        again. To be used with --realtime. Defaults to 10
+                        seconds
+  --foreground, -f      Run in foreground
+  --allow_other, -a     Allow other users to read from the filesystem.
   --skeleton, -s        Remove all values from the datastructure, essentially
                         leaving only the structure itself. Useful in
                         combination with --realtime
+  --realtime            Fetch data realtime.
+  --disable-cleanup, -d
+                        Disable the cleanup thread. Use only when you have
+                        trouble with threading.
 ```
 
 Example Usage

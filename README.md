@@ -12,27 +12,29 @@ use with the datamounter.py script.
 Usage ansible_fetcher.py
 -----
 ```
-usage: ansible_fetcher.py [-h] [--pattern PATTERN] [--retries RETRIES] -f
+usage: ansible_fetcher.py [-h] --pattern PATTERN [--retries RETRIES] -f
                           FILENAME [--custom CUSTOM] [--skeleton]
 
 Fetch information from remote systems using Ansible
 
 optional arguments:
   -h, --help            show this help message and exit
-  --pattern PATTERN, -p PATTERN
-                        Pattern to extract info from. Needed when generating a
-                        cache file and when not using a cache file
   --retries RETRIES, -r RETRIES
                         Optional number of retries to contact unreachable
                         hosts
-  -f FILENAME, --filename FILENAME
-                        Destination filename for the json data.
   --custom CUSTOM       Optional ini file with custom commands to run on
                         remote host which output to expose. Files will show up
                         under custom_facts/.
   --skeleton, -s        Remove all values from the datastructure, essentially
                         leaving only the structure itself. Useful in
                         combination with --realtime
+
+required arguments:
+  --pattern PATTERN, -p PATTERN
+                        Pattern to extract info from. Needed when generating a
+                        cache file and when not using a cache file
+  -f FILENAME, --filename FILENAME
+                        Destination filename for the json data.
 ```
 
 Usage datamounter.py
@@ -50,8 +52,6 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --cache CACHE, -c CACHE
-                        Location of the cache-file.
   --updatetime UTIME    Optionally tell the mounter how long the contents of
                         files will be cached after which the fact is retrieved
                         again. To be used with --realtime. Defaults to 10
@@ -65,6 +65,10 @@ optional arguments:
   --disable-cleanup, -d
                         Disable the cleanup thread. Use only when you have
                         trouble with threading.
+
+required arguments:
+  --cache CACHE, -c CACHE
+                        Location of the cache-file.
 ```
 
 Example Usage

@@ -6,8 +6,11 @@ import ansible.inventory
 def flatten_ansible_struct(struct, custom_output=None):
     newstruct = {}
     tempstruct = {}
-    for host in struct['contacted']:
-        tempstruct[host] = struct['contacted'][host]['ansible_facts']
+    try:
+        for host in struct['contacted']:
+            tempstruct[host] = struct['contacted'][host]['ansible_facts']
+    except KeyError:
+        pass
 
     # Remove ipv4 and put contents one "dir" higher
     for host in tempstruct.keys():

@@ -26,7 +26,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Mount virtual filesystem using json/ansible as input")
     parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
-    parser.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file.")
+    required = parser.add_argument_group('required arguments')
+    required.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file.")
     parser.add_argument("--updatetime", dest="utime", required=False, type=int, default=10,
                         help="""Optionally tell the mounter how long the contents of files will be cached after which
                         the fact is retrieved again. To be used with --realtime. Defaults to 10 seconds""")

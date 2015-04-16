@@ -39,6 +39,8 @@ if __name__ == "__main__":
                         Useful in combination with --realtime""")
     parser.add_argument("--realtime", action="store_true", required=False, help="Fetch data realtime.",
                         dest="realtime", default=False)
+    parser.add_argument("--disable-cleanup", "-d", action="store_true", default=False, dest="disable_cleanup",
+                        help="Disable the cleanup thread. Use only when you have trouble with threading.")
 
     args = parser.parse_args()
     print "Loading data"
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         gut_struct(struct)
 
     print "done"
-    if args.realtime:
+    if args.realtime and not args.disable_cleanup:
         cleanup = True
     else:
         cleanup = False

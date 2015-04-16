@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 import sys
-try:
-    import argparse
-except ImportError:
-    import argparse_local as argparse
 from lib.datamounter_helpers import DataFS, load_struct
 from lib.ansible_helpers import gut_struct
 
+try:
+    import argparse
+except ImportError:
+    from lib import argparse_local as argparse
 try:
     from fuse import FUSE
 except ImportError:

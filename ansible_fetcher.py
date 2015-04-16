@@ -3,8 +3,9 @@
 try:
     import argparse
 except ImportError:
-    import argparse_local as argparse
+    from lib import argparse_local as argparse
 import ConfigParser
+
 from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
 
 

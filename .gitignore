@@ -4,3 +4,4 @@
 *.json
 *.ini
 .idea
+Vagrantfile

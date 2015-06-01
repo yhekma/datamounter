@@ -15,6 +15,7 @@ except ImportError:
 
 
 def main(datastruct, mountpoint, f, realtime, allow_other, utime, clean):
+    print mountpoint
     FUSE(DataFS(datastruct, realtime, utime, clean), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 
@@ -25,7 +26,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Mount virtual filesystem using json/ansible as input")
-    parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="?")
+    parser.add_argument("mountpoint", help="Where to mount the filesystem", nargs="+")
     required = parser.add_argument_group('required arguments')
     required.add_argument("--cache", "-c", dest="cache", required=True, help="Location of the cache-file.")
     parser.add_argument("--updatetime", dest="utime", required=False, type=int, default=10,

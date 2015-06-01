@@ -3,5 +3,8 @@
 *.swp
 *.json
 *.ini
+Test/**
 .idea
 Vagrantfile
+playbook.yml
+inventory

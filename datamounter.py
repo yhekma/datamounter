@@ -15,7 +15,6 @@ except ImportError:
 
 
 def main(datastruct, mountpoint, f, realtime, allow_other, utime, clean):
-    print mountpoint
     FUSE(DataFS(datastruct, realtime, utime, clean), mountpoint, allow_other=allow_other, foreground=f, ro=True)
 
 

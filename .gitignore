@@ -12,3 +12,4 @@ Test/**
 Vagrantfile
 playbook.yml
 inventory
+conf.py

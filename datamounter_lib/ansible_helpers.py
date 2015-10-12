@@ -4,6 +4,16 @@ import ansible.inventory
 
 
 def flatten_ansible_struct(struct, custom_output=None):
+    """
+    Make an ansible dictionary usable for mounting by moving the everything under the
+    "contacted" key one level higher and inserting things like local facts.
+
+    :param struct: A dictionary created with ansible.runner
+    :type struct: dict
+    :param custom_output: Dictionary containing the output of custom commands.
+    :return: A modified (flattened and enriched) structure
+    :rtype: dict
+    """
     newstruct = {}
     tempstruct = {}
     try:

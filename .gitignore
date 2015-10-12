@@ -1,4 +1,8 @@
 *~
+*.rst
+*.html
+_build/
+._build/
 *.pyc
 *.swp
 *.json

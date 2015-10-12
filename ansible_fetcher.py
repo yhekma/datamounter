@@ -3,13 +3,19 @@
 try:
     import argparse
 except ImportError:
-    from lib import argparse_local as argparse
+    from local_libs import argparse_local as argparse
 import ConfigParser
 
-from lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
+from datamounter_lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
 
 
 def load_ini(path):
+    """
+    :param path: Absolute path of the ini file
+    :type path: str
+    :rtype: Configparser.RawConfigParser
+
+    """
     config = ConfigParser.RawConfigParser()
     config.read(path)
     result = {}

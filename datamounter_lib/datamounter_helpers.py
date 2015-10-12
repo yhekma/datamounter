@@ -6,7 +6,7 @@ import pwd
 try:
     from fuse import Operations
 except ImportError:
-    from lib.fuse_local import Operations
+    from local_libs.fuse_local import Operations
 from ansible_helpers import get_real_data, run_custom_command
 
 

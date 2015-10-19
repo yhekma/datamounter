@@ -6,7 +6,7 @@ except ImportError:
     from local_libs import argparse_local as argparse
 import ConfigParser
 
-from datamounter_lib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
+from dlib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
 
 
 def load_ini(path):

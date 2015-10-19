@@ -2,8 +2,8 @@
 
 import sys
 
-from datamounter_lib.datamounter_helpers import DataFS, load_struct
-from datamounter_lib.ansible_helpers import gut_struct
+from dlib.datamounter_helpers import DataFS, load_struct
+from dlib.ansible_helpers import gut_struct
 
 try:
     import argparse

@@ -9,6 +9,7 @@ _build/
 *.ini
 Test/**
 .idea
+/doc/.doctrees
 Vagrantfile
 playbook.yml
 inventory

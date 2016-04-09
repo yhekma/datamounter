@@ -5,14 +5,8 @@ import sys
 from dlib.datamounter_helpers import DataFS, load_struct
 from dlib.ansible_helpers import gut_struct
 
-try:
-    import argparse
-except ImportError:
-    from local_libs import argparse_local as argparse
-try:
-    from fuse import FUSE
-except ImportError:
-    from local_libs.fuse_local import FUSE
+import argparse
+from fuse import FUSE
 
 
 def main(datastruct, mountpoint, f, realtime, allow_other, utime, clean):

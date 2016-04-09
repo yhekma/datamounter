@@ -4,7 +4,6 @@ import stat
 import os
 import pwd
 from fuse import Operations
-from .ansible_helpers import get_real_data, run_custom_command
 
 
 uid = pwd.getpwuid(os.getuid()).pw_uid

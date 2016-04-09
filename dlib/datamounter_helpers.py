@@ -3,11 +3,8 @@ import time
 import stat
 import os
 import pwd
-try:
-    from fuse import Operations
-except ImportError:
-    from local_libs.fuse_local import Operations
-from ansible_helpers import get_real_data, run_custom_command
+from fuse import Operations
+from .ansible_helpers import get_real_data, run_custom_command
 
 
 uid = pwd.getpwuid(os.getuid()).pw_uid
@@ -25,7 +22,7 @@ class DataFS(Operations):
         self.fetch_times = {}
         if cleanup:
             import threading
-            from cleanupthread import CleanupThread
+            from .cleanupthread import CleanupThread
 
             self.lock = threading.Lock()
             ct = CleanupThread(3, self.struct, self.lock)
@@ -56,9 +53,9 @@ class DataFS(Operations):
         val = self._recursive_lookup(splitted_path, self.struct)
 
         if type(val) == dict:
-            s = stat.S_IFDIR | 0555
+            s = stat.S_IFDIR | 0o555
         else:
-            s = stat.S_IFREG | 0444
+            s = stat.S_IFREG | 0o444
 
         size = len(str(val)) + 1
 
@@ -76,19 +73,19 @@ class DataFS(Operations):
         path_tip = self._recursive_lookup(splitted_path, self.struct)
 
         if len(splitted_path) == 0:
-            dirents.extend(self.struct.keys())
+            dirents.extend(list(self.struct.keys()))
             for r in dirents:
                 yield r
 
         else:
-            dirents.extend(path_tip.keys())
+            dirents.extend(list(path_tip.keys()))
             for r in dirents:
                 yield r
 
     def read(self, path, length, offset, fh):
         splitted_path = split_path(path)
         host = splitted_path[0]
-        if host not in self.fetch_times.keys():
+        if host not in list(self.fetch_times.keys()):
             self.fetch_times[host] = 0
 
         if self.realtime:
@@ -105,7 +102,7 @@ class DataFS(Operations):
                     pass
 
                 else:
-                    if host in self.struct.keys():
+                    if host in list(self.struct.keys()):
                         current_host_data = get_real_data(host, old_custom_commands)
                         self.struct[host] = current_host_data[host]
                         self.fetch_times[host] = time.time()
@@ -134,10 +131,9 @@ class DataFS(Operations):
 
 
 def load_struct(pklfile):
-    f = open(pklfile, 'rb')
-    struct = json.load(f)
-    f.close()
-    return struct
+    with open(pklfile, 'r') as handle:
+        struct = json.loads(handle.read())
+        return struct
 
 
 def split_path(path):

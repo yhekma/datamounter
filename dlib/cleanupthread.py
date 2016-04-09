@@ -1,6 +1,6 @@
 import threading
 from time import sleep
-from ansible_helpers import gut_struct
+from .ansible_helpers import gut_struct
 
 
 class CleanupThread(threading.Thread):

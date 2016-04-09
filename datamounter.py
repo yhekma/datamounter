@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 
@@ -22,7 +22,7 @@ def main(datastruct, mountpoint, f, realtime, allow_other, utime, clean):
 if __name__ == "__main__":
     struct = {}
     if len(sys.argv) == 1:
-        print 'Please specify what to mount where. Use "%s -h" for help.' % sys.argv[0]
+        print('Please specify what to mount where. Use "%s -h" for help.' % sys.argv[0])
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Mount virtual filesystem using json/ansible as input")
@@ -45,14 +45,14 @@ if __name__ == "__main__":
                         help="Disable the cleanup thread. Use only when you have trouble with threading.")
 
     args = parser.parse_args()
-    print "Loading data"
+    print("Loading data")
 
     struct = load_struct(args.cache)
 
     if args.skeleton:
         gut_struct(struct)
 
-    print "done"
+    print("done")
     if args.realtime and not args.disable_cleanup:
         cleanup = True
     else:

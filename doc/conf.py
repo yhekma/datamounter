@@ -46,8 +46,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Datamounter'
-copyright = u'2015, Yoram Hekma'
+project = 'Datamounter'
+copyright = '2015, Yoram Hekma'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -200,8 +200,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'Datamounter.tex', u'Datamounter Documentation',
-   u'Yoram Hekma', 'manual'),
+  ('index', 'Datamounter.tex', 'Datamounter Documentation',
+   'Yoram Hekma', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -230,8 +230,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'datamounter', u'Datamounter Documentation',
-     [u'Yoram Hekma'], 1)
+    ('index', 'datamounter', 'Datamounter Documentation',
+     ['Yoram Hekma'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -244,8 +244,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Datamounter', u'Datamounter Documentation',
-   u'Yoram Hekma', 'Datamounter', 'One line description of project.',
+  ('index', 'Datamounter', 'Datamounter Documentation',
+   'Yoram Hekma', 'Datamounter', 'One line description of project.',
    'Miscellaneous'),
 ]
 

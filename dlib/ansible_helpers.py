@@ -21,22 +21,22 @@ def flatten_ansible_struct(struct, custom_output=None):
         pass
 
     # Remove ipv4 and put contents one "dir" higher
-    for host in tempstruct.keys():
-        for item in tempstruct[host].keys():
+    for host in list(tempstruct.keys()):
+        for item in list(tempstruct[host].keys()):
             try:
                 newstruct[host][item] = tempstruct[host][item]
             except KeyError:
                 newstruct[host] = {item: tempstruct[host][item]}
 
     # Rename ansible_local to local_facts if any
-    for host in newstruct.keys():
+    for host in list(newstruct.keys()):
         try:
             newstruct[host]['local_facts'] = newstruct[host].pop('ansible_local')
         except KeyError:
             pass
 
     # Walk through "ansible_mounts" (list) and create direntries
-    for host in newstruct.keys():
+    for host in list(newstruct.keys()):
         for mount in newstruct[host]['ansible_mounts']:
             diskname = mount['device'].split('/')[-1]
             try:
@@ -48,13 +48,13 @@ def flatten_ansible_struct(struct, custom_output=None):
 
     if custom_output:
         # Remove empty dicts
-        [custom_output.pop(i) for i in custom_output.keys() if custom_output[i] == {}]
-        for filename in custom_output.keys():
+        [custom_output.pop(i) for i in list(custom_output.keys()) if custom_output[i] == {}]
+        for filename in list(custom_output.keys()):
             if not custom_output[filename]:
                 continue
 
-            for host in custom_output[filename]['contacted'].keys():
-                if host not in newstruct.keys():
+            for host in list(custom_output[filename]['contacted'].keys()):
+                if host not in list(newstruct.keys()):
                     continue
 
                 output = custom_output[filename]['contacted'][host]
@@ -64,7 +64,7 @@ def flatten_ansible_struct(struct, custom_output=None):
                     newstruct[host]['custom_commands'] = {filename: output}
 
     # Remove SSH_AUTH_SOCK from ansible_env
-    for host in newstruct.keys():
+    for host in list(newstruct.keys()):
         try:
             newstruct[host]['ansible_env'].pop('SSH_AUTH_SOCK')
         except KeyError:
@@ -202,16 +202,16 @@ def fetch_struct(pattern, retries=0):
 
     for r in range(int(retries)):
         if not len(struct['dark']) == 0:
-            newpattern = ':'.join(struct['dark'].keys())
-            print "Retrying %s" % newpattern
+            newpattern = ':'.join(list(struct['dark'].keys()))
+            print("Retrying %s" % newpattern)
             newrunner = gen_runner(newpattern, forks=10, timeout=2)
             newstruct = newrunner.run()
-            for host in newstruct['contacted'].keys():
+            for host in list(newstruct['contacted'].keys()):
                 try:
                     struct['dark'].pop(host)
                 except KeyError:
                     pass
-            for host in newstruct['contacted'].keys():
+            for host in list(newstruct['contacted'].keys()):
                 struct['contacted'][host] = newstruct['contacted'][host]
 
     return struct
@@ -227,10 +227,10 @@ def gut_struct(struct):
     :rtye: dict
     """
     if type(struct) == dict:
-        for k in struct.keys():
+        for k in list(struct.keys()):
             if k == 'cmd':
                 continue
-            if type(struct[k]) == unicode or type(struct[k]) == int:
+            if type(struct[k]) == str or type(struct[k]) == int:
                 struct[k] = ''
             if type(struct[k]) == list:
                 struct.pop(k)

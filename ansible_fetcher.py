@@ -4,7 +4,7 @@ try:
     import argparse
 except ImportError:
     from local_libs import argparse_local as argparse
-import ConfigParser
+import configparser
 
 from dlib.ansible_helpers import flatten_ansible_struct, fetch_struct, run_custom_command, gut_struct, save_struct
 
@@ -16,7 +16,7 @@ def load_ini(path):
     :rtype: Configparser.RawConfigParser
 
     """
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(path)
     result = {}
     for h in config.sections():
@@ -51,8 +51,8 @@ if __name__ == '__main__':
     if args.custom:
         cust_input = load_ini(args.custom)
         custom_commands = {}
-        for host in cust_input.keys():
-            for filename in cust_input[host].keys():
+        for host in list(cust_input.keys()):
+            for filename in list(cust_input[host].keys()):
                 custom_commands[filename] = run_custom_command(host, cust_input[host][filename], args.pattern,
                                                                args.skeleton)
 

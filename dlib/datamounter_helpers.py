@@ -11,21 +11,12 @@ gid = pwd.getpwuid(os.getuid()).pw_gid
 
 
 class DataFS(Operations):
-    def __init__(self, struct, realtime=False, utime=10, cleanup=False):
-        self.cleanup = cleanup
+    def __init__(self, struct, utime=10):
         self.utime = utime
         self.epoch_time = time.time()
-        self.realtime = realtime
         self.struct = struct
         self.ctimedict = {}
         self.fetch_times = {}
-        if cleanup:
-            import threading
-            from .cleanupthread import CleanupThread
-
-            self.lock = threading.Lock()
-            ct = CleanupThread(3, self.struct, self.lock)
-            ct.run()
 
     def _recursive_lookup(self, path, struct):
         if type(struct) == list:
@@ -86,43 +77,6 @@ class DataFS(Operations):
         host = splitted_path[0]
         if host not in list(self.fetch_times.keys()):
             self.fetch_times[host] = 0
-
-        if self.realtime:
-            if self.cleanup:
-                self.lock.acquire()
-
-            if "custom_commands" not in splitted_path:
-                try:
-                    old_custom_commands = self.struct[host]['custom_commands']
-                except KeyError:
-                    old_custom_commands = None
-
-                if int(time.time() - self.fetch_times[host]) < self.utime:
-                    pass
-
-                else:
-                    if host in list(self.struct.keys()):
-                        current_host_data = get_real_data(host, old_custom_commands)
-                        self.struct[host] = current_host_data[host]
-                        self.fetch_times[host] = time.time()
-
-            elif 'stdout' in splitted_path:
-                if self.cleanup:
-                    self.lock.acquire()
-
-                if int(time.time() - self.fetch_times[host]) < self.utime:
-                    pass
-                else:
-                    splitted_cmd_path = splitted_path[:splitted_path.index('custom_commands') + 2]
-                    filename = splitted_cmd_path[-1:][0]
-                    splitted_cmd_path.append('cmd')
-                    cmd = str(self._recursive_lookup(splitted_cmd_path, self.struct)) + "\n"
-                    output = {host: run_custom_command(host, cmd)}[host]['contacted']
-                    self.struct[host]['custom_commands'][filename] = output[host]
-                    self.fetch_times[host] = time.time()
-
-        if self.cleanup:
-            self.lock.release()
 
         path_tip = str(self._recursive_lookup(splitted_path, self.struct)) + "\n"
         r = path_tip[offset:offset + length]

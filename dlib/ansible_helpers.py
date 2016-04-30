@@ -163,6 +163,7 @@ def run_custom_command(host, command, run_pattern=None, skeleton=False):
 
 
 def gen_runner(pattern, forks=50, timeout=5):
+    import ansible.runner
     """
     Create an ansible runner for the setup module
 

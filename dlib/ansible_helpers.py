@@ -1,4 +1,6 @@
 import json
+import ansible.inventory
+import ansible.runner
 
 
 def flatten_ansible_struct(struct, custom_output=None):
@@ -74,8 +76,6 @@ def flatten_ansible_struct(struct, custom_output=None):
 
 
 def get_real_data(host, custom_commands=None):
-    import ansible.runner
-    import ansible.inventory
     """
     Runs the setup module on a host. When passed a custom command, it is appended to the returned struct
 
